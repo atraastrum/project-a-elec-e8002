@@ -6,4 +6,4 @@ gamry-600-reference: code that is responsible for handeling data from potentiost
 
 For user-interface and gamry-600-reference our primary tools are CPP and QT. It is to be desided how Software on Application PC will communicate with Internal computer.  
 
-For mcu-code: hardware team decides.  
+For mcu-code: hardware team decides. Roy will handle this.
