@@ -1,0 +1,6 @@
+- Used 64 bit version of python 
+- Created isolated Python environment
+  $ virtualenv python_env
+- Install PyQt5 wheel
+  $ pip3 install PyQt5
+-Write Simple Application
