@@ -14,3 +14,6 @@ SOURCES += main.cpp \
 
 HEADERS += \
     gamrypotentiostat.hpp
+
+DISTFILES += \
+    temp
