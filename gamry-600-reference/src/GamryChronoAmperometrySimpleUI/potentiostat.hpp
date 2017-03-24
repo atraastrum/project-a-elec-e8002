@@ -12,6 +12,7 @@ namespace Gamry {
     explicit Potentiostat();
     ~Potentiostat();
 
+    long deviceCount();
   private:
     CComPtr<IGamryDeviceList> spDeviceList;
     CComPtr<IGamryPstat> spPstat;

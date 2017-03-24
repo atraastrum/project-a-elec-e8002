@@ -12,11 +12,16 @@ namespace Gamry {
     explicit QPotentiostat(QObject *parent = 0);
     ~QPotentiostat();
 
+  protected:
+    void timerEvent(QTimerEvent *event);
+
   signals:
+    void detected();
 
   public slots:
   private:
     Potentiostat* rpPstat;
+    int iTimerIDDevCount;
   };
 }
 

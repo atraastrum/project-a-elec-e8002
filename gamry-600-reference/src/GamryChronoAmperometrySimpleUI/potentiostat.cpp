@@ -32,4 +32,9 @@ namespace Gamry {
     CoUninitialize();
     qDebug() << "Destructor of Potentiostat Called\n";
   }
+
+  long Potentiostat::deviceCount()
+  {
+    return spDeviceList->Count();
+  }
 }
