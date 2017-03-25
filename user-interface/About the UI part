@@ -10,7 +10,7 @@ When running the UI designed by python, you also need to install pyqt5.
 
 But there is no need for members to run the UI file. 
 The image "mainwindow" shows the UI apperance. Everyone can see what the mainwindow looks just from the image "mainwindow".
-And a text file about the UI and some idea is in the folder UI-with-Qt5, which everyone can read and modify.
+And a text file called "About" about the UI and some idea is in the folder UI-with-Qt5, which everyone can read and modify.
 
 The UI needs to be modified of course. Everyone who thinks there should be something in need to be added in the UI
 or has any suggestions can tell me via Whatapp, slack or just writes down the points here. 
