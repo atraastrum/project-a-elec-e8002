@@ -103,6 +103,7 @@ namespace Gamry {
 
   void Potentiostat::close()
   {
+    spDtaqChrono->Stop();
     qDebug() << "Pstat turning Cell Of\n";
     spPstat->SetCell(CellOff);
     qDebug() << "Pstat closing\n";
