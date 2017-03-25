@@ -1,0 +1,22 @@
+
+The interface is designed by Qt5 creator, which is a .ui file. Then a header file ui_mainwindow.h can be generated from it.
+
+Aftering calling ui_mainwindow.h in mainwindow.h and mainwindow.cpp, and doing some modification in the original code, 
+the UI can be used in the source file.
+
+Then we can customize the function we need. In the Qt, a widget action can be seen as emitting a signal,
+and a slot is called when a signal connected to it is emitted.  Slots are normal C++ functions and can be called normally.
+
+A simple example:
+QObject::connect(Exit, SIGNAL(clicked()), MainWindow, SLOT(close()));
+Here the button Exit is the sender; clicked() is the signal meaning the button is clicked; MainWindow is the receiver;
+the slot close() is called when the signal is emitted, meaning the receiver MainWindow is closed.
+
+About the widgets in the UI:
+Button Start: When it clicked, the motor and the Gamry measurement begin to work.
+Button Exit: Exit the application. (It is not a button very in need).
+in the GroupBox Choosing Valve: Two buttons to decide which valve is opened. 
+in the GroupBox Motor Speed: To change the motor speed by scrollbar or spinbox;
+System time is showed at the bottom-left of the window.
+Helpmenu: To open user guide by Guide and to show basic information of this test bed by About. ( It is a idea, 
+I will try to reach the goal that a text file or a .doc file can be opened when choose a option.)
