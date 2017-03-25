@@ -66,7 +66,6 @@ namespace Gamry {
 
       spPstat->Init(sectionBSTR);
 
-
       qDebug() << "Initializing  IGamryDtaqChrono\n";
       spDtaqChrono->Init(spPstat, ChronoAmp);
     }
@@ -102,5 +101,53 @@ namespace Gamry {
     spDtaqChrono->Run(VARIANT_TRUE);
   }
 
+  void Potentiostat::close()
+  {
+    qDebug() << "Pstat turning Cell Of\n";
+    spPstat->SetCell(CellOff);
+    qDebug() << "Pstat closing\n";
+    spPstat->Close(VARIANT_TRUE);
+  }
+
+  std::vector<CookInformationPoint> Potentiostat::pullDataItems(size_t point_count)
+  {
+    std::vector<CookInformationPoint> data;
+    // Output Data
+    VARIANT dataitem[10];
+    long    index[2];
+
+    SAFEARRAY* psa;
+
+    long pointcount = static_cast<long>(point_count);
+    spDtaqChrono->Cook(&pointcount, &psa);
+
+    // Loop through and add points to vector
+    for (int i = 0; i < pointcount; ++i)
+    {
+      // Indexes are specific locations based on Dtaq. See documentation for details.
+      // SafeArray indexing is reversed from normal conventions.
+      index[1] = i;
+      for (long j = 0; j < 10; ++j) {
+        index[0] = j;
+        SafeArrayGetElement(psa, index, &(dataitem[i]) );
+      }
+
+      data.push_back({dataitem[0].fltVal,
+                      dataitem[1].fltVal,
+                      dataitem[2].fltVal,
+                      dataitem[3].fltVal,
+                      dataitem[4].fltVal,
+                      dataitem[5].fltVal,
+                      dataitem[6].fltVal,
+                      dataitem[7].intVal,
+                      dataitem[8].intVal,
+                      dataitem[9].intVal
+                     });
+      //std::cout << Time_data.fltVal << ";" << Voltage_data.fltVal << ";" << Current_data.fltVal << "\n";
+    }
+    SafeArrayDestroy(psa);
+
+    return data;
+  }
 
 }

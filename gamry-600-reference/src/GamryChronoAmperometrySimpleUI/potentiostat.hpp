@@ -3,8 +3,23 @@
 
 #import "libid:BD962F0D-A990-4823-9CF5-284D1CDD9C6D" no_namespace
 #include <atlbase.h>
+#include <vector>
 
 namespace Gamry {
+  struct CookInformationPoint
+  {
+    float Time;    // Time of measurment
+    float Vf;      // Measured E vs. Eref
+    float Vu;      // Uncompensated voltage
+    float Im;      // Applied or Measured? current
+    float Q;       //
+    float Vsig;    // Signal sent to Contrl Amp
+    float Arch;    // Measured Aux channel voltage
+    int IERange;   //
+    int Overload;  // Hexadecimal number reprsenting overload status
+    int StopTest;  //
+  };
+
   class Potentiostat
   {
 
@@ -29,7 +44,15 @@ namespace Gamry {
     // GAMRYCOMLib::IGamryPstat.
     void open();
 
+    // Pontentiostat intializes the signal that was set with setStepSignal method.
+    // Switches the cell switch on and run the experiment by calling GAMRYCOMLib::IGamryDtaqChrono::Run
     void start();
+
+    // Swtiches the cell of and close potentiostat so that other programs can use it.
+    void close();
+
+    // Retrieve point_count CookInformationPoint points from the data acqusition queue
+    std::vector<CookInformationPoint> pullDataItems(size_t point_count);
 
   private:
     CComPtr<IGamryDeviceList> spDeviceList;
