@@ -11,6 +11,7 @@ A simple example:
 QObject::connect(Exit, SIGNAL(clicked()), MainWindow, SLOT(close()));
 Here the button Exit is the sender; clicked() is the signal meaning the button is clicked; MainWindow is the receiver;
 the slot close() is called when the signal is emitted, meaning the receiver MainWindow is closed.
+A tutorial about signal&slot: http://www.bogotobogo.com/Qt/Qt5_SignalsSlotsGui.php
 
 About the widgets in the UI:
 Button Start: When it clicked, the motor and the Gamry measurement begin to work.
