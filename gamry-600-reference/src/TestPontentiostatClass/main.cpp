@@ -11,16 +11,17 @@ int main()
     pStat.init();
     pStat.open();
     // 10 seconds measurement
-    pStat.setStepSignal(5.0f, 5.0f, -0.1f, 5.0f, 0.01f);
-
+    pStat.setStepSignal(0.5f, 5.0f, -0.1f, 5.0f, 0.01f);
+    pStat.start();
 
     size_t points_accuired = 0;
-    std::fstream ofile;
+    std::ofstream ofile;
 
     // CSV file format is used to store tabular data
     ofile.open("data.csv");
     do {
-      Sleep(5000);
+      std::cout << "Wait 1 sec...\n";
+      Sleep(1000);
       std::vector<Gamry::CookInformationPoint> data = pStat.pullDataItems(100);
       points_accuired = data.size();
       for(int i = 0; i < data.size(); ++i)

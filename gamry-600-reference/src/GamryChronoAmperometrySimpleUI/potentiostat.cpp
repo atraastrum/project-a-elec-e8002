@@ -1,6 +1,7 @@
 #include "potentiostat.hpp"
 #include <QDebug>
 
+
 namespace Gamry {
   Potentiostat::Potentiostat()
   {
@@ -122,7 +123,6 @@ namespace Gamry {
     long pointcount = static_cast<long>(point_count);
     spDtaqChrono->Cook(&pointcount, &psa);
 
-    // Loop through and add points to vector
     for (int i = 0; i < pointcount; ++i)
     {
       // Indexes are specific locations based on Dtaq. See documentation for details.
@@ -130,7 +130,7 @@ namespace Gamry {
       index[1] = i;
       for (long j = 0; j < 10; ++j) {
         index[0] = j;
-        SafeArrayGetElement(psa, index, &(dataitem[i]) );
+        SafeArrayGetElement(psa, index, &(dataitem[j]) );
       }
 
       data.push_back({dataitem[0].fltVal,
@@ -144,8 +144,9 @@ namespace Gamry {
                       dataitem[8].intVal,
                       dataitem[9].intVal
                      });
-      //std::cout << Time_data.fltVal << ";" << Voltage_data.fltVal << ";" << Current_data.fltVal << "\n";
+      qDebug() << dataitem[0].fltVal << ";" << dataitem[3].fltVal << ";" << dataitem[3].fltVal << "\n";
     }
+
     SafeArrayDestroy(psa);
 
     return data;
