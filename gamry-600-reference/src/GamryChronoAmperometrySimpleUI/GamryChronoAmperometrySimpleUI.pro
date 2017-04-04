@@ -32,6 +32,7 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h \
     potentiostat.hpp \
     qpotentiostat.hpp \
-    qcustomplot.h
+    qcustomplot.h \
+    gamry.hpp
 
 FORMS    += mainwindow.ui

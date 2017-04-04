@@ -4,21 +4,9 @@
 #import "libid:BD962F0D-A990-4823-9CF5-284D1CDD9C6D" no_namespace
 #include <atlbase.h>
 #include <vector>
+#include "gamry.hpp"
 
 namespace Gamry {
-  struct CookInformationPoint
-  {
-    float Time;    // Time of measurment
-    float Vf;      // Measured E vs. Eref
-    float Vu;      // Uncompensated voltage
-    float Im;      // Applied or Measured? current
-    float Q;       //
-    float Vsig;    // Signal sent to Contrl Amp
-    float Arch;    // Measured Aux channel voltage
-    int IERange;   //
-    int Overload;  // Hexadecimal number reprsenting overload status
-    int StopTest;  //
-  };
 
   class Potentiostat
   {

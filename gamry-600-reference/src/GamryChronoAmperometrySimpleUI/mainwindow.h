@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "gamry.hpp"
 
 namespace Ui {
 class MainWindow;
@@ -19,6 +20,13 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+
+public slots:
+  void activateButton();
+
+private slots:
+  void on_startExperButton_clicked();
+  void updatePlot(std::vector<Gamry::CookInformationPoint>);
 
 private:
   Ui::MainWindow *ui;
