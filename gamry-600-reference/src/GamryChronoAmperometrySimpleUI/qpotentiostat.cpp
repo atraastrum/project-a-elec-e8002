@@ -24,11 +24,11 @@ namespace Gamry {
   {
     if (currentState == State::ExperimentNotRunning)
     {
-      iTimerIDPullData = startTimer(1000);
       currentState = State::ExperimentRunning;
       rpPstat->open();
       rpPstat->setStepSignal(vInit, tInit, vFinal, tFinal, sampleRate);
       rpPstat->start();
+      iTimerIDPullData = startTimer(1000);
       qDebug() << "Started Experiment\n";
     }
   }
@@ -56,17 +56,18 @@ namespace Gamry {
     int id = event->timerId();
     if (id == iTimerIDDevCount)
     {
-      if (rpPstat->deviceCount() >= 0 && currentState == State::DeviceNotDetected)
+      if (rpPstat->deviceCount() > 0 && currentState == State::DeviceNotDetected)
       {
         killTimer(iTimerIDDevCount);
         iTimerIDDevCount = -1;
         currentState = State::ExperimentNotRunning;
-        rpPstat->init();
+
         qDebug() << "Detected potentiostat\n" ;
         emit detected();
       }
+      else
+        qDebug() << "Polling for device...\n" ;
 
-      qDebug() << "Polling for device...\n" ;
     } else if (id == iTimerIDPullData)
     {
       qDebug() << "Polling for data...\n" ;
@@ -90,6 +91,7 @@ namespace Gamry {
         ++j;
       }
 #endif
+
       if ( ! buffer.empty() )
         emit dataAvailable(buffer);
 

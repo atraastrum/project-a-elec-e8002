@@ -7,10 +7,7 @@
 #include "gamry.hpp"
 
 namespace Gamry {
-  class DeviceList {
-  private:
-    CComPtr<IGamryDeviceList> spDeviceList;
-  }
+
   class Potentiostat
   {
 

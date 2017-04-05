@@ -42,11 +42,16 @@ void MainWindow::activateButton()
 void MainWindow::on_startExperButton_clicked()
 {
   if (rpPstat->state() == Gamry::QPotentiostat::State::ExperimentNotRunning) {
+    qDebug() << "sdfasdfsdf\n";
+    ui->startExperButton->setDisabled(true);
+    ui->startExperButton->setText("Intializing Potentiostat");
+    // Here program will freaze
     rpPstat->startExperiment(0.5f, 5.0f, -0.1f, 5.0f, 0.01f);
     ui->startExperButton->setText("Stop ChronoAmperometry Experiment");
     ui->currentVsTimePlot->clearGraphs();
     ui->currentVsTimePlot->addGraph();
     ui->currentVsTimePlot->xAxis->setRange(0.0f, 10.0f);
+    ui->startExperButton->setEnabled(true);
   } else if (rpPstat->state() == Gamry::QPotentiostat::State::ExperimentRunning) {
     rpPstat->stopExperiment();
     ui->startExperButton->setText("Start ChronoAmperometry Experiment");
@@ -55,21 +60,23 @@ void MainWindow::on_startExperButton_clicked()
 
 void MainWindow::updatePlot(std::vector<Gamry::CookInformationPoint> data)
 {
+  static QVector<double> v;
   QVector<double> x, y;
   for(auto item:data)
   {
     x.push_back(item.Time);
     y.push_back(item.Im);
+    v.push_back(item.Im);
   }
 
-  QVector<double> diff(y.size());
+  QVector<double> diff(v.size());
 
-  double mean = std::accumulate( y.begin(), y.end(), 0.0)/y.size();
-  std::transform(y.begin(), y.end(), diff.begin(), [mean](double y) { return y - mean; });
+  double mean = std::accumulate( v.begin(), v.end(), 0.0)/v.size();
+  std::transform(v.begin(), v.end(), diff.begin(), [mean](double y) { return y - mean; });
   double sq_sum = std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
-  double stdev = std::sqrt(sq_sum / y.size());
+  double stdev = std::sqrt(sq_sum / v.size());
 
-  ui->currentVsTimePlot->yAxis->setRange(mean - 1.5 * stdev, mean + 1.5 * stdev);
+  ui->currentVsTimePlot->yAxis->setRange(mean - 5.0 * stdev, mean + 5.0 * stdev);
   ui->currentVsTimePlot->graph(0)->addData(x, y, true);
   ui->currentVsTimePlot->replot();
 }
