@@ -8,9 +8,17 @@
 
 namespace Gamry {
   class DeviceList {
+  public:
+    explicit DeviceList();
+    ~DeviceList();
+
+    // Returns the count of device connected. Call Count of GAMRYCOMLib::IGamryDeviceList
+    long deviceCount();
+    std::string getSection(long idx);
   private:
     CComPtr<IGamryDeviceList> spDeviceList;
-  }
+  };
+
   class Potentiostat
   {
 
@@ -18,11 +26,11 @@ namespace Gamry {
     explicit Potentiostat();
     ~Potentiostat();
 
-    // Returns the count of device connected. Call Count of GAMRYCOMLib::IGamryDeviceList
-    long deviceCount();
+
+
 
     // Initializes GAMRYCOMLib::IGamryPstat and GAMRYCOMLib::IGamryDtaqChrono
-    void init();
+    void init(const std::string &sectionName);
 
     // Initilize GAMRYCOMLib::IGamryStepSignal and set the signal with GAMRYCOMLib::IGamryPstat::SetSignal.
     // Think and Test what happens if setStepSignal is called before init
@@ -46,7 +54,6 @@ namespace Gamry {
     std::vector<CookInformationPoint> pullDataItems(size_t point_count);
 
   private:
-    CComPtr<IGamryDeviceList> spDeviceList;
     CComPtr<IGamryPstat> spPstat;
     CComPtr<IGamryDtaqChrono> spDtaqChrono;
     CComPtr<IGamrySignalStep> spSignalStep;

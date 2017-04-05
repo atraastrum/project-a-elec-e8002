@@ -7,6 +7,7 @@
 namespace Gamry {
 
   // Defined in potentiostat.hpp
+  class DeviceList;
   class Potentiostat;
   struct CookInformationPoint;
 
@@ -32,6 +33,7 @@ namespace Gamry {
     void detected();
     // Emitted when data from gamry Experiment is available
     void dataAvailable(std::vector<Gamry::CookInformationPoint>);
+    void experimentStarted();
 
   public slots:
     // Starts experiment
@@ -39,6 +41,7 @@ namespace Gamry {
     void stopExperiment();
 
   private:
+    DeviceList* rpDevList;
     Potentiostat* rpPstat;
     State currentState;
     int iTimerIDDevCount;

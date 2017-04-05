@@ -31,6 +31,7 @@ private slots:
 private:
   Ui::MainWindow *ui;
   Gamry::QPotentiostat* rpPstat;
+  float fTotalExperimentTime;
 };
 
 #endif // MAINWINDOW_H

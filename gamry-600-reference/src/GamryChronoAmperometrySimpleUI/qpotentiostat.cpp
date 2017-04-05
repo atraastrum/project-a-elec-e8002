@@ -6,17 +6,25 @@
 namespace Gamry {
   QPotentiostat::QPotentiostat(QObject *parent)
     : QObject(parent),
-      rpPstat(new Potentiostat),
+      rpDevList(new DeviceList),
+      rpPstat(nullptr),
       currentState{State::DeviceNotDetected},
       iTimerIDDevCount{startTimer(1000)}
+
   {
 
   }
 
   QPotentiostat::~QPotentiostat()
   {
+    if (rpDevList)
+      delete rpDevList;
     if (rpPstat)
+    {
+      rpPstat->close();
       delete rpPstat;
+    }
+
   }
 
   void QPotentiostat::startExperiment(float vInit, float tInit, float vFinal,
@@ -24,12 +32,20 @@ namespace Gamry {
   {
     if (currentState == State::ExperimentNotRunning)
     {
-      currentState = State::ExperimentRunning;
-      rpPstat->open();
-      rpPstat->setStepSignal(vInit, tInit, vFinal, tFinal, sampleRate);
-      rpPstat->start();
-      iTimerIDPullData = startTimer(1000);
-      qDebug() << "Started Experiment\n";
+      if (rpPstat == nullptr) {
+        rpPstat = new Potentiostat;
+        currentState = State::ExperimentRunning;
+        std::string section{"REF600-20017"};
+        rpPstat->init(section);
+        rpPstat->open();
+        rpPstat->setStepSignal(vInit, tInit, vFinal, tFinal, sampleRate);
+        rpPstat->start();
+        emit experimentStarted();
+        iTimerIDPullData = startTimer(1000);
+        qDebug() << "Started Experiment\n";
+      }
+      else
+        qDebug() << "Potentiostat must be nullptr in startExperiment\n";
     }
   }
 
@@ -37,10 +53,15 @@ namespace Gamry {
   {
     if (currentState == State::ExperimentRunning)
     {
-      killTimer(iTimerIDPullData);
-      currentState = State::ExperimentNotRunning;
-      rpPstat->close();
-      qDebug() << "Stopped Experiment\n";
+      if (rpPstat)
+      {
+        killTimer(iTimerIDPullData);
+        currentState = State::ExperimentNotRunning;
+        rpPstat->close();
+        delete rpPstat;
+        rpPstat = nullptr;
+        qDebug() << "Stopped Experiment\n";
+      }
     }
   }
 
@@ -56,13 +77,15 @@ namespace Gamry {
     int id = event->timerId();
     if (id == iTimerIDDevCount)
     {
-      if (rpPstat->deviceCount() > 0 && currentState == State::DeviceNotDetected)
+      if (rpDevList->deviceCount() > 0 && currentState == State::DeviceNotDetected)
       {
         killTimer(iTimerIDDevCount);
         iTimerIDDevCount = -1;
         currentState = State::ExperimentNotRunning;
 
-        qDebug() << "Detected potentiostat\n" ;
+        qDebug() << "Detected potentiostat";
+        std::string s = rpDevList->getSection(0);
+        qDebug() << s.c_str();
         emit detected();
       }
       else
@@ -72,30 +95,15 @@ namespace Gamry {
     {
       qDebug() << "Polling for data...\n" ;
 
+      //std::vector<Gamry::CookInformationPoint> buffer;
       std::vector<Gamry::CookInformationPoint> buffer = rpPstat->pullDataItems(100);
-#if 0
-      std::vector<CookInformationPoint> buffer;
-      for(int i = 0; i < 2; ++i) {
-        CookInformationPoint item = {static_cast<float>(j),
-                                     0.0f,
-                                     0.0f,
-                                     static_cast<float>(i*i),
-                                     0.0f,
-                                     0.0f,
-                                     0,
-                                     0,
-                                     0
-                                    };
-        qDebug() << j ;
-        buffer.push_back(item);
-        ++j;
-      }
-#endif
 
       if ( ! buffer.empty() )
         emit dataAvailable(buffer);
 
+
     }
   }
+
 }
 

@@ -1,50 +1,48 @@
 #include "potentiostat.hpp"
 #include <QDebug>
-
+#include <iostream>
 
 namespace Gamry {
   Potentiostat::Potentiostat()
   {
-    CoInitialize(nullptr);
-    HRESULT hr = spDeviceList.CoCreateInstance(__uuidof(GamryDeviceList));
+    //CoInitialize(nullptr);
 
-    if (FAILED(hr))
-      throw "Failed 1";
+    HRESULT hr = spPstat.CoCreateInstance(__uuidof(GamryPstat));
 
-//    hr = spSignalStep.CoCreateInstance(__uuidof(GamrySignalStep));
-//    if(FAILED(hr))
-//      throw "Failed 4";
+    if(FAILED(hr))
+      throw "Failed 2";
+
+    hr = spDtaqChrono.CoCreateInstance(__uuidof(GamryDtaqChrono));
+
+    if(FAILED(hr))
+      throw "Failed 3";
+
+    hr = spSignalStep.CoCreateInstance(__uuidof(GamrySignalStep));
+    if(FAILED(hr))
+      throw "Failed 4";
 
     qDebug() << "End of scope Pontentiostat ctor\n";
   }
 
   Potentiostat::~Potentiostat()
   {
-    CoUninitialize();
+    //CoUninitialize();
     qDebug() << "Destructor of Potentiostat Called\n";
   }
 
-  long Potentiostat::deviceCount()
-  {
-    return spDeviceList->Count();
-  }
 
   void Potentiostat::setStepSignal(float vInit, float tInit, float vFinal, float tFinal, float sampleRate)
   {
     qDebug() << "Initializing  IGamrySignalStep\n";
-    HRESULT hr = spSignalStep.CoCreateInstance(__uuidof(GamrySignalStep));
-    if(FAILED(hr))
-      throw "Failed 4";
     spSignalStep->Init(spPstat, vInit, tInit, vFinal, tFinal, sampleRate, PstatMode);
     IGamrySignal* lpSignalBase = nullptr;
     spSignalStep->QueryInterface(&lpSignalBase);
     spPstat->SetSignal(lpSignalBase);
   }
 
-  void Potentiostat::init()
+  void Potentiostat::init(const std::string &sectionName)
   {
-    if (deviceCount() > 0)
-    {
+    /*
       std::string section;
       BSTR sectionBSTR = nullptr;
       long idx = 0;
@@ -58,26 +56,17 @@ namespace Gamry {
       }
 
       SafeArrayDestroy(psa);
-      HRESULT hr = spPstat.CoCreateInstance(__uuidof(GamryPstat));
-
-     if(FAILED(hr))
-       throw "Failed 2";
-
-      hr = spDtaqChrono.CoCreateInstance(__uuidof(GamryDtaqChrono));
-
-      if(FAILED(hr))
-        throw "Failed 3";
-
-      spPstat->Init(sectionBSTR);
+*/
+      qDebug() << "Initializing  IGamryPstat\n";
+      CComBSTR temp(sectionName.c_str());
+      spPstat->Init(temp.Detach());
 
       qDebug() << "Initializing  IGamryDtaqChrono\n";
       spDtaqChrono->Init(spPstat, ChronoAmp);
-    }
   }
 
   void Potentiostat::open()
   {
-    init();
     qDebug() << "Opening potentiostat\n";
     spPstat->Open();
 
@@ -113,9 +102,6 @@ namespace Gamry {
     spPstat->SetCell(CellOff);
     qDebug() << "Pstat closing\n";
     spPstat->Close(VARIANT_TRUE);
-    spSignalStep.Release();
-    spDtaqChrono.Release();
-    spPstat.Release();
   }
 
   std::vector<CookInformationPoint> Potentiostat::pullDataItems(size_t point_count)
@@ -128,7 +114,6 @@ namespace Gamry {
     SAFEARRAY* psa;
 
     long pointcount = static_cast<long>(point_count);
-    qDebug() << "!!!!!!!!!!!!!!!!!\n";
     try {
       spDtaqChrono->Cook(&pointcount, &psa);
       for (int i = 0; i < pointcount; ++i)
@@ -159,13 +144,47 @@ namespace Gamry {
     } catch(...) {
       close();
       qDebug() << "error\n";
-
     }
 
-
-
-
     return data;
+  }
+
+  DeviceList::DeviceList()
+  {
+    CoInitialize(nullptr);
+    HRESULT hr = spDeviceList.CoCreateInstance(__uuidof(GamryDeviceList));
+    if (FAILED(hr))
+      throw "Failed 1";
+  }
+
+  DeviceList::~DeviceList()
+  {
+    CoUninitialize();
+  }
+
+  long DeviceList::deviceCount()
+  {
+    return spDeviceList->Count();
+  }
+
+  std::string DeviceList::getSection(long idx)
+  {
+    std::string section;
+    if (0 <= idx && idx < deviceCount())
+    {
+      BSTR sectionBSTR = nullptr;
+      long idx = 0;
+      SAFEARRAY* psa = nullptr;
+      psa = spDeviceList->EnumSections();
+      SafeArrayGetElement(psa, &idx, &sectionBSTR);
+      if (sectionBSTR) {
+        section = _bstr_t(sectionBSTR);
+      } else {
+        qDebug() << "Unable to get Label for idx " << idx << "\n";
+      }
+    }
+
+    return section;
   }
 
 }

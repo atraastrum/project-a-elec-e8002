@@ -9,7 +9,8 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    rpPstat(new Gamry::QPotentiostat)
+    rpPstat(new Gamry::QPotentiostat),
+    fTotalExperimentTime{0}
 {
   ui->setupUi(this);
 
@@ -18,13 +19,11 @@ MainWindow::MainWindow(QWidget *parent) :
                       this, SLOT(updatePlot(std::vector<Gamry::CookInformationPoint>))
                    );
 
-  /*
-  QObject::connect(rpPstat, &Gamry::QPotentiostat::dataAvailable, [this]{
-    qDebug() << "AAAAAAAA\n";
-    std::vector<Gamry::CookInformationPoint> data = rpPstat->getDataPoints();
-    qDebug() << "BBBBBBBB\n";
+
+  QObject::connect(rpPstat, &Gamry::QPotentiostat::experimentStarted, [this]{
+    qDebug() << "Started!!!!!!!!!!!!!!\n";
   });
-  */
+
 }
 
 MainWindow::~MainWindow()
@@ -47,10 +46,11 @@ void MainWindow::on_startExperButton_clicked()
     ui->startExperButton->setText("Intializing Potentiostat");
     // Here program will freaze
     rpPstat->startExperiment(0.5f, 5.0f, -0.1f, 5.0f, 0.01f);
+    fTotalExperimentTime = 10.0f;
     ui->startExperButton->setText("Stop ChronoAmperometry Experiment");
     ui->currentVsTimePlot->clearGraphs();
     ui->currentVsTimePlot->addGraph();
-    ui->currentVsTimePlot->xAxis->setRange(0.0f, 10.0f);
+    ui->currentVsTimePlot->xAxis->setRange(0.0f, fTotalExperimentTime);
     ui->startExperButton->setEnabled(true);
   } else if (rpPstat->state() == Gamry::QPotentiostat::State::ExperimentRunning) {
     rpPstat->stopExperiment();
@@ -79,4 +79,8 @@ void MainWindow::updatePlot(std::vector<Gamry::CookInformationPoint> data)
   ui->currentVsTimePlot->yAxis->setRange(mean - 5.0 * stdev, mean + 5.0 * stdev);
   ui->currentVsTimePlot->graph(0)->addData(x, y, true);
   ui->currentVsTimePlot->replot();
+  if (x.back() >= fTotalExperimentTime) {
+    rpPstat->stopExperiment();
+    ui->startExperButton->setText("Start ChronoAmperometry Experiment");
+  }
 }
