@@ -29,6 +29,8 @@ namespace Gamry {
     void timerEvent(QTimerEvent *event);
 
   signals:
+    //
+    void polling();
     // Emitted when Gamry is detected
     void detected();
     // Emitted when data from gamry Experiment is available
@@ -46,6 +48,7 @@ namespace Gamry {
     State currentState;
     int iTimerIDDevCount;
     int iTimerIDPullData;
+    std::string pStatSectionName;
   };
 }
 

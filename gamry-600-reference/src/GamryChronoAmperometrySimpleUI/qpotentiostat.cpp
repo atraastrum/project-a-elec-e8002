@@ -33,14 +33,19 @@ namespace Gamry {
     if (currentState == State::ExperimentNotRunning)
     {
       if (rpPstat == nullptr) {
+        if (pStatSectionName.empty())
+        {
+          qDebug() << "Section name is empty string";
+          qDebug() << "Will not start expreriment";
+          return;
+        }
         rpPstat = new Potentiostat;
-        currentState = State::ExperimentRunning;
-        std::string section{"REF600-20017"};
-        rpPstat->init(section);
+        rpPstat->init(pStatSectionName);
         rpPstat->open();
         rpPstat->setStepSignal(vInit, tInit, vFinal, tFinal, sampleRate);
         rpPstat->start();
         emit experimentStarted();
+        currentState = State::ExperimentRunning;
         iTimerIDPullData = startTimer(1000);
         qDebug() << "Started Experiment\n";
       }
@@ -84,12 +89,15 @@ namespace Gamry {
         currentState = State::ExperimentNotRunning;
 
         qDebug() << "Detected potentiostat";
-        std::string s = rpDevList->getSection(0);
-        qDebug() << s.c_str();
+        std::string pStatSectionName = rpDevList->getSection(0);
+        qDebug() << pStatSectionName.c_str();
         emit detected();
       }
       else
+      {
         qDebug() << "Polling for device...\n" ;
+        emit polling();
+      }
 
     } else if (id == iTimerIDPullData)
     {
@@ -100,8 +108,6 @@ namespace Gamry {
 
       if ( ! buffer.empty() )
         emit dataAvailable(buffer);
-
-
     }
   }
 
