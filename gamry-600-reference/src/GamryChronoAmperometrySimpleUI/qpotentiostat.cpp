@@ -10,7 +10,6 @@ namespace Gamry {
       rpPstat(nullptr),
       currentState{State::DeviceNotDetected},
       iTimerIDDevCount{startTimer(1000)}
-
   {
 
   }
@@ -44,9 +43,9 @@ namespace Gamry {
         rpPstat->open();
         rpPstat->setStepSignal(vInit, tInit, vFinal, tFinal, sampleRate);
         rpPstat->start();
-        emit experimentStarted();
         currentState = State::ExperimentRunning;
         iTimerIDPullData = startTimer(1000);
+        emit experimentStarted();
         qDebug() << "Started Experiment\n";
       }
       else

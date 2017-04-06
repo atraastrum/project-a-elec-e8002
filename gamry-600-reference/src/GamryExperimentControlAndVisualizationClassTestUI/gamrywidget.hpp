@@ -6,7 +6,9 @@
 class QCustomPlot;
 class QVBoxLayout;
 
+
 namespace Gamry {
+  class QPotentiostat;
 
   class GamryWidget : public QWidget
   {
@@ -16,11 +18,23 @@ namespace Gamry {
     explicit GamryWidget(QWidget *parent = 0);
 
   signals:
+    void polling();
+    void detected();
+    void experimentStarted();
+
+  private slots:
+    void emitpollingevent();
+    void emitdetectedevent();
+    void emitexperimentStarted();
 
   public slots:
+    void startExperiment(float vInit, float tInit, float vFinal, float tFinal, float sampleRate);
+    void stopExperiment();
+
   private:
-    QVBoxLayout *mainLayout;
-    QCustomPlot* plot;
+    QVBoxLayout *rpMainLayout;
+    QCustomPlot* rpPlot;
+    QPotentiostat* rpPstat;
   };
 }
 

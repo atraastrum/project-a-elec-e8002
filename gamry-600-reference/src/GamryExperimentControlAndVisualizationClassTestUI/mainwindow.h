@@ -16,7 +16,21 @@ public:
   ~MainWindow();
 
 private:
+  void setSignalValuesToLineEdits();
+  void setDisabledSignalLineEdits(bool val = true);
+
+private slots:
+  void pollingAnimation();
+  void pstatDetected();
+  void on_startStopButton_clicked();
+  void experimentStarted();
+private:
   Ui::MainWindow *ui;
+  float vInit;
+  float tInit;
+  float vFinal;
+  float tFinal;
+  float smpRate;
 };
 
 #endif // MAINWINDOW_H
