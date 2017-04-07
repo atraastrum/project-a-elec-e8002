@@ -23,7 +23,7 @@
       <x>40</x>
       <y>370</y>
       <width>331</width>
-      <height>121</height>
+      <height>111</height>
      </rect>
     </property>
     <property name="title">
@@ -58,31 +58,37 @@
       <string>Start Potentiostat</string>
      </property>
     </widget>
-    <widget class="QCheckBox" name="liquid1Control">
+    <widget class="QRadioButton" name="liquid1Control">
      <property name="geometry">
       <rect>
-       <x>30</x>
+       <x>20</x>
        <y>80</y>
-       <width>81</width>
+       <width>95</width>
        <height>20</height>
       </rect>
      </property>
      <property name="text">
       <string>Liquid 1</string>
      </property>
+     <attribute name="buttonGroup">
+      <string notr="true">liquidControls</string>
+     </attribute>
     </widget>
-    <widget class="QCheckBox" name="liquid2Control">
+    <widget class="QRadioButton" name="liquid2Control">
      <property name="geometry">
       <rect>
-       <x>120</x>
+       <x>170</x>
        <y>80</y>
-       <width>81</width>
+       <width>95</width>
        <height>20</height>
       </rect>
      </property>
      <property name="text">
       <string>Liquid 2</string>
      </property>
+     <attribute name="buttonGroup">
+      <string notr="true">liquidControls</string>
+     </attribute>
     </widget>
    </widget>
    <widget class="QSpinBox" name="comPortSelect">
@@ -294,4 +300,7 @@
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="liquidControls"/>
+ </buttongroups>
 </ui>

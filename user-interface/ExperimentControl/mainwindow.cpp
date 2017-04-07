@@ -9,6 +9,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     arduinoSerial= new ArduinoSerial;
+    ui->manualControlsGroup->setEnabled(false);
+    ui->autoControlsGroup->setEnabled(false);
 }
 
 MainWindow::~MainWindow()
@@ -36,16 +38,6 @@ void MainWindow::on_startPumpButton_clicked()
     }
 }
 
-void MainWindow::on_liquid1Button_clicked()
-{
-
-}
-
-void MainWindow::on_liquid2Button_clicked()
-{
-
-}
-
 void MainWindow::on_comPortSelect_valueChanged(int arg1)
 {
     qDebug() << arg1;
@@ -57,20 +49,37 @@ void MainWindow::on_comPortSelection_clicked()
     if(arduinoSerial->setComPort(com))
     {
         ui->manualControlsGroup->setEnabled(true);
+        comPortSelected = 1;
     }
     //TODO check if manual or automatic is on
 }
 
 void MainWindow::on_modeSelection_activated(const QString &arg1)
 {
-    if(arg1 == "Manual")
+    if(arg1 == "Manual" && comPortSelected==1)
     {
         ui->manualControlsGroup->setEnabled(true);
         ui->autoControlsGroup->setEnabled(false);
     }
-    else if(arg1 == "Auto")
+    else if(arg1 == "Auto" && comPortSelected==1)
     {
         ui->manualControlsGroup->setEnabled(false);
         ui->autoControlsGroup->setEnabled(true);
+    }
+}
+
+void MainWindow::on_liquid1Control_clicked()
+{
+    if(arduinoSerial->openLiquid1())
+    {
+        qDebug() << "Liquid 1 selected";
+    }
+}
+
+void MainWindow::on_liquid2Control_clicked()
+{
+    if(arduinoSerial->openLiquid2())
+    {
+        qDebug() << "Liquid 2 selected";
     }
 }
