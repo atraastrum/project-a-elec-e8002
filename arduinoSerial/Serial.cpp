@@ -6,7 +6,7 @@ Serial::Serial(const char *portName)
 	this->connected = false;
 
 	//Try connecting with CreateFile
-	this->hSerial = CreateFile(portName,
+    this->hSerial = CreateFileA(portName,
 		GENERIC_READ | GENERIC_WRITE,
 		0,
 		NULL,

@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+class ArduinoSerial;
+
 namespace Ui {
 class MainWindow;
 }
@@ -16,11 +18,17 @@ public:
     ~MainWindow(); 
 
 protected:
-    void timerEvent(QTimerEvent *event);
+
+private slots:
+    void on_startPumpButton_clicked();
+
+    void on_liquid1Button_clicked();
+
+    void on_liquid2Button_clicked();
 
 private:
     Ui::MainWindow *ui;
-    int timerID;
+    ArduinoSerial *arduinoSerial;
 };
 
 #endif // MAINWINDOW_H

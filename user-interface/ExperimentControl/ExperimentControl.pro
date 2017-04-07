@@ -26,7 +26,6 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp\
         mainwindow.cpp \
     ../../arduinoSerial/ArduinoSerial.cpp \
-    ../../arduinoSerial/main.cpp \
     ../../arduinoSerial/Serial.cpp
 
 HEADERS  += mainwindow.h \

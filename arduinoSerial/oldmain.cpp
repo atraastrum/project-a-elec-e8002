@@ -6,7 +6,7 @@
 #include "ArduinoSerial.h"
 
 //Simple main function for sending commands to arduino
-void main()
+void oldmain()
 {
 	ArduinoSerial* serial = new ArduinoSerial(7);
 	for (int i = 0; i < 6; i++)
