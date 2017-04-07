@@ -8,7 +8,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    arduinoSerial= new ArduinoSerial(4);
+    arduinoSerial= new ArduinoSerial;
 }
 
 MainWindow::~MainWindow()
@@ -44,4 +44,33 @@ void MainWindow::on_liquid1Button_clicked()
 void MainWindow::on_liquid2Button_clicked()
 {
 
+}
+
+void MainWindow::on_comPortSelect_valueChanged(int arg1)
+{
+    qDebug() << arg1;
+}
+
+void MainWindow::on_comPortSelection_clicked()
+{
+    int com = ui->comPortSelect->value();
+    if(arduinoSerial->setComPort(com))
+    {
+        ui->manualControlsGroup->setEnabled(true);
+    }
+    //TODO check if manual or automatic is on
+}
+
+void MainWindow::on_modeSelection_activated(const QString &arg1)
+{
+    if(arg1 == "Manual")
+    {
+        ui->manualControlsGroup->setEnabled(true);
+        ui->autoControlsGroup->setEnabled(false);
+    }
+    else if(arg1 == "Auto")
+    {
+        ui->manualControlsGroup->setEnabled(false);
+        ui->autoControlsGroup->setEnabled(true);
+    }
 }

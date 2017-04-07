@@ -8,11 +8,11 @@ class ArduinoSerial
 {
 public:
 	//Constructor sets up the connection and com port
-    ArduinoSerial(int comport=4);
+    ArduinoSerial();
 	//Destructor closes the connection
 	~ArduinoSerial();
     //Set com port
-
+    bool setComPort(int comport);
 	//Function for sending the start command to pump
 	bool startPump();
 	//Function for sending opening command to liquid 1 valve

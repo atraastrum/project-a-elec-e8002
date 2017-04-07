@@ -14,48 +14,243 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QPushButton" name="liquid2Button">
-    <property name="geometry">
-     <rect>
-      <x>320</x>
-      <y>120</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Liquid 2</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="startPumpButton">
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>170</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Start Pump</string>
-    </property>
-    <property name="checkable">
+   <widget class="QGroupBox" name="manualControlsGroup">
+    <property name="enabled">
      <bool>false</bool>
     </property>
-   </widget>
-   <widget class="QPushButton" name="liquid1Button">
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>220</y>
+      <x>40</x>
+      <y>370</y>
+      <width>331</width>
+      <height>121</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Manual Controls</string>
+    </property>
+    <widget class="QPushButton" name="startPumpButton">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>20</y>
+       <width>121</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Start Pump</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="controlPSTATButton">
+     <property name="geometry">
+      <rect>
+       <x>170</x>
+       <y>20</y>
+       <width>121</width>
+       <height>41</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Start Potentiostat</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="liquid1Control">
+     <property name="geometry">
+      <rect>
+       <x>30</x>
+       <y>80</y>
+       <width>81</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Liquid 1</string>
+     </property>
+    </widget>
+    <widget class="QCheckBox" name="liquid2Control">
+     <property name="geometry">
+      <rect>
+       <x>120</x>
+       <y>80</y>
+       <width>81</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Liquid 2</string>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QSpinBox" name="comPortSelect">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>40</y>
+      <width>41</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>1</number>
+    </property>
+    <property name="maximum">
+     <number>20</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>20</y>
+      <width>101</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Select COM port</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="comPortSelection">
+    <property name="geometry">
+     <rect>
+      <x>100</x>
+      <y>40</y>
       <width>93</width>
       <height>28</height>
      </rect>
     </property>
     <property name="text">
-     <string>Liquid 1</string>
+     <string>Set COM port</string>
     </property>
    </widget>
+   <widget class="QComboBox" name="modeSelection">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>40</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="editable">
+     <bool>true</bool>
+    </property>
+    <property name="currentText">
+     <string>Manual</string>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <item>
+     <property name="text">
+      <string>Manual</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Auto</string>
+     </property>
+    </item>
+   </widget>
+   <widget class="QGroupBox" name="autoControlsGroup">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>100</y>
+      <width>331</width>
+      <height>251</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string>Automatic Controls</string>
+    </property>
+    <widget class="QLineEdit" name="timeInput">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>60</y>
+       <width>91</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::DefaultContextMenu</enum>
+     </property>
+     <property name="placeholderText">
+      <string>Seconds</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="measurementStartButton">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>200</y>
+       <width>93</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Start</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="intervalInput">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>140</y>
+       <width>91</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="placeholderText">
+      <string>Milliseconds</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_2">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>30</y>
+       <width>111</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Time</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>120</y>
+       <width>55</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Interval</string>
+     </property>
+    </widget>
+   </widget>
+   <zorder>manualControlsGroup</zorder>
+   <zorder>startPumpButton</zorder>
+   <zorder>liquid1Button</zorder>
+   <zorder>comPortSelect</zorder>
+   <zorder>label</zorder>
+   <zorder>comPortSelection</zorder>
+   <zorder>modeSelection</zorder>
+   <zorder>autoControlsGroup</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

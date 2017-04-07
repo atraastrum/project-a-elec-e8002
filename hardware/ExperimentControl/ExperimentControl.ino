@@ -6,9 +6,9 @@ int liquid_used = 1; //variable for liquid usage, 1 = liquid 1 and 2 = liquid 2
 String cmd; //string variable for saving the last command
 
 //For testing!!
-//int pumpLed = 4;
-//int liquid1Led = 5;
-//int liquid2Led = 6;
+int pumpLed = 4;
+int liquid1Led = 5;
+int liquid2Led = 6;
 //
 
 //motor
@@ -31,7 +31,7 @@ void startPump(){
   }
   analogWrite(PWMPinA1, 255);
   //Testing
-  //digitalWrite(pumpLed, HIGH);
+  digitalWrite(pumpLed, HIGH);
   Serial.write("Pump started\n");
   //
   pump_status = true; //pump is on
@@ -48,7 +48,7 @@ void stopPump(){
   analogWrite(PWMPinA1, 0); //set to 0 speed
   delay(500);
   //Testing
-  //digitalWrite(pumpLed, LOW);
+  digitalWrite(pumpLed, LOW);
   Serial.write("Pump stopped\n");
   //
   pump_status = false; //pump is off
@@ -62,8 +62,8 @@ void liquid1(){
   */
 
   //Testing
-  //digitalWrite(liquid1Led, HIGH);
-  //digitalWrite(liquid2Led, LOW);
+  digitalWrite(liquid1Led, HIGH);
+  digitalWrite(liquid2Led, LOW);
   Serial.write("Liquid 1 valve is open\n");
   //
   liquid_used = 1; //set liquid 1 as used
@@ -76,8 +76,8 @@ void liquid2(){
   */
   
   //Testing
-  //digitalWrite(liquid1Led, LOW);
-  //digitalWrite(liquid2Led, HIGH);
+  digitalWrite(liquid1Led, LOW);
+  digitalWrite(liquid2Led, HIGH);
   Serial.write("Liquid 2 valve is open\n");
   //
   liquid_used = 2; //set liquid 2 as used
@@ -90,9 +90,9 @@ void setup() {
   pinMode(PWMPinB1, OUTPUT);
   //
   //testing leds
-  //pinMode(pumpLed, OUTPUT);
-  //pinMode(liquid1Led, OUTPUT);
-  //pinMode(liquid2Led, OUTPUT);
+  pinMode(pumpLed, OUTPUT);
+  pinMode(liquid1Led, OUTPUT);
+  pinMode(liquid2Led, OUTPUT);
   //
   //Start serial
   Serial.begin(9600);
