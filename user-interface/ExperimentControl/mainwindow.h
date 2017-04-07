@@ -15,8 +15,12 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow(); 
 
+protected:
+    void timerEvent(QTimerEvent *event);
+
 private:
     Ui::MainWindow *ui;
+    int timerID;
 };
 
 #endif // MAINWINDOW_H

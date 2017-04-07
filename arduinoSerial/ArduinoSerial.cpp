@@ -20,7 +20,7 @@ ArduinoSerial::ArduinoSerial(int comport)
 
 ArduinoSerial::~ArduinoSerial()
 {
-	SP->~Serial();
+    delete SP;
 }
 
 bool ArduinoSerial::startPump()
