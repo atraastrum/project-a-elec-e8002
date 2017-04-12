@@ -19,6 +19,9 @@ int PWMPinB1 = 3;
 const byte CPin1 = A0;  // analog input channel
 int CRaw1;      // raw A/D value
 
+// for choosing liquid, controlling relay
+int relay_pin=9;
+
 //Function for starting the pump
 void startPump(){
   //Implement your pump starting code here
@@ -56,10 +59,10 @@ void stopPump(){
 
 //Function for opening the liquid 1 solenoid and closing the liquid 2 solenoid
 void liquid1(){
-  /*
-   Implement your relay control code here 
-   to open liquid 1 and close liquid 2
-  */
+  digitalWrite(relay_pin, HIGH);
+
+
+  
 
   //Testing
   digitalWrite(liquid1Led, HIGH);
@@ -72,10 +75,7 @@ void liquid1(){
 //Function for opening liquid 2 solenoid and closing the liquid 1 solenoid
 //This is not needed since only one solenoid is used
 void liquid2(){
-  /*
-   Implement your relay control code here 
-   to open liquid 2 and close liquid 1
-  */
+  digitalWrite(relay_pin, LOW);
   
   //Testing
   digitalWrite(liquid1Led, LOW);
@@ -95,6 +95,7 @@ void setup() {
   pinMode(EnablePin1, OUTPUT);
   pinMode(PWMPinA1, OUTPUT);
   pinMode(PWMPinB1, OUTPUT);
+  pinMode(relay_pin, OUTPUT);
   //
   //testing leds
   pinMode(pumpLed, OUTPUT);
