@@ -20,7 +20,7 @@ const byte CPin1 = A0;  // analog input channel
 int CRaw1;      // raw A/D value
 
 // for choosing liquid, controlling relay
-int relay_pin=9;
+int relay_pin=10;
 
 //Function for starting the pump
 void startPump(){
