@@ -249,14 +249,22 @@
      </property>
     </widget>
    </widget>
-   <zorder>manualControlsGroup</zorder>
-   <zorder>startPumpButton</zorder>
-   <zorder>liquid1Button</zorder>
-   <zorder>comPortSelect</zorder>
-   <zorder>label</zorder>
-   <zorder>comPortSelection</zorder>
-   <zorder>modeSelection</zorder>
-   <zorder>autoControlsGroup</zorder>
+   <widget class="QLabel" name="comInitText">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>90</x>
+      <y>70</y>
+      <width>55</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

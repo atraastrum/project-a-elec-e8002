@@ -16,7 +16,7 @@ bool ArduinoSerial::setComPort(int comport)
 
     //Convert port number to const char
     std::string portStr = "COM" + std::to_string(comport);
-    std::cout << portStr << std::endl;
+    //std::cout << portStr << std::endl;
     const char *port = portStr.c_str();
     //catch error here
     SP = new Serial(port); //use the comport variable here
@@ -29,12 +29,27 @@ bool ArduinoSerial::setComPort(int comport)
     return false;
 }
 
+char* ArduinoSerial::connectionCheck()
+{
+    char incomingData[4] = "";
+    int dataLength = 3;
+    int readResult = 0;
+
+    if(SP->IsConnected())
+    {
+        SP->WriteData("i", 1);
+
+        readResult = SP->ReadData(incomingData, dataLength);
+        incomingData[readResult] = 0;
+    }
+    return incomingData;
+}
+
 bool ArduinoSerial::startPump()
 {
 	if (SP->IsConnected())
 	{
 		SP->WriteData("s", 1);
-        //Sleep(500);
 		return true;
 	}
 	return false;

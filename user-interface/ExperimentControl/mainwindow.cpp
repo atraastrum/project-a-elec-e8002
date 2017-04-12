@@ -48,10 +48,14 @@ void MainWindow::on_comPortSelection_clicked()
     int com = ui->comPortSelect->value();
     if(arduinoSerial->setComPort(com))
     {
-        ui->manualControlsGroup->setEnabled(true);
-        comPortSelected = 1;
+        const char *data = arduinoSerial->connectionCheck();
+        if(strcmp(data, "UNO"))
+        {
+            ui->comInitText->setText("UNO"); //how to convert char to Qstring
+            ui->manualControlsGroup->setEnabled(true);
+            comPortSelected = 1;
+        }
     }
-    //TODO check if manual or automatic is on
 }
 
 void MainWindow::on_modeSelection_activated(const QString &arg1)
