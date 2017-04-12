@@ -32,7 +32,7 @@ void startPump(){
   analogWrite(PWMPinA1, 255);
   //Testing
   digitalWrite(pumpLed, HIGH);
-  Serial.write("Pump started\n");
+  //Serial.write("Pump started\n");
   //
   pump_status = true; //pump is on
 }
@@ -49,7 +49,7 @@ void stopPump(){
   delay(500);
   //Testing
   digitalWrite(pumpLed, LOW);
-  Serial.write("Pump stopped\n");
+  //Serial.write("Pump stopped\n");
   //
   pump_status = false; //pump is off
 }
@@ -64,11 +64,13 @@ void liquid1(){
   //Testing
   digitalWrite(liquid1Led, HIGH);
   digitalWrite(liquid2Led, LOW);
-  Serial.write("Liquid 1 valve is open\n");
+  //Serial.write("Liquid 1 valve is open\n");
   //
   liquid_used = 1; //set liquid 1 as used
 }
 
+//Function for opening liquid 2 solenoid and closing the liquid 1 solenoid
+//This is not needed since only one solenoid is used
 void liquid2(){
   /*
    Implement your relay control code here 
@@ -78,9 +80,14 @@ void liquid2(){
   //Testing
   digitalWrite(liquid1Led, LOW);
   digitalWrite(liquid2Led, HIGH);
-  Serial.write("Liquid 2 valve is open\n");
+  //Serial.write("Liquid 2 valve is open\n");
   //
   liquid_used = 2; //set liquid 2 as used
+}
+
+//Function for sending Arduino information to UI
+void send_info(){
+  Serial.write("UNO");
 }
 
 void setup() {
@@ -100,7 +107,6 @@ void setup() {
   while(!Serial){
     ;
   }
-  Serial.println("Connection ready");
 }
 
 void loop() {
@@ -124,6 +130,9 @@ void loop() {
     else if (cmd == "c"){
       //liquid 2 valve open command is given
       liquid2();
+    }
+    else if (cmd == "i"){
+      send_info();
     }
   }
 }
