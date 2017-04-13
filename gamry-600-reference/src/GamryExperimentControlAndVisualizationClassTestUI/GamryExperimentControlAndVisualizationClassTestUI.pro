@@ -34,6 +34,7 @@ HEADERS  += mainwindow.h \
     ../GamryChronoAmperometrySimpleUI/potentiostat.hpp \
     ../GamryChronoAmperometrySimpleUI/qcustomplot.h \
     ../GamryChronoAmperometrySimpleUI/qpotentiostat.hpp \
-    gamrywidget.hpp
+    gamrywidget.hpp \
+    ../GamryChronoAmperometrySimpleUI/gamry.hpp
 
 FORMS    += mainwindow.ui
