@@ -111,7 +111,7 @@ QPushButton:pressed {
        <string>Manual Controls</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_6">
-       <item row="4" column="0">
+       <item row="4" column="0" alignment="Qt::AlignHCenter">
         <widget class="QRadioButton" name="liquid2Control">
          <property name="text">
           <string>Liquid 2</string>
@@ -121,7 +121,7 @@ QPushButton:pressed {
          </attribute>
         </widget>
        </item>
-       <item row="3" column="0">
+       <item row="3" column="0" alignment="Qt::AlignHCenter">
         <widget class="QRadioButton" name="liquid1Control">
          <property name="text">
           <string>Liquid 1</string>
@@ -138,7 +138,7 @@ QPushButton:pressed {
          </property>
         </widget>
        </item>
-       <item row="1" column="0">
+       <item row="1" column="0" alignment="Qt::AlignHCenter">
         <widget class="QPushButton" name="startPumpButton">
          <property name="text">
           <string>Start Pump</string>
@@ -285,7 +285,7 @@ QPushButton:pressed {
          </property>
         </spacer>
        </item>
-       <item row="3" column="2">
+       <item row="3" column="2" alignment="Qt::AlignHCenter">
         <widget class="QPushButton" name="measurementStartButton">
          <property name="text">
           <string>Start</string>
@@ -420,7 +420,7 @@ QPushButton:pressed {
      <x>0</x>
      <y>0</y>
      <width>745</width>
-     <height>26</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMenu_Setup">
