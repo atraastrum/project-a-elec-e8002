@@ -51,7 +51,6 @@ void MainWindow::on_comPortSelection_clicked()
         const char *data = arduinoSerial->connectionCheck();
         if(strcmp(data, "UNO"))
         {
-            ui->comInitText->setText("UNO"); //how to convert char to Qstring
             ui->manualControlsGroup->setEnabled(true);
             comPortSelected = 1;
         }

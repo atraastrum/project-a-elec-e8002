@@ -60,10 +60,6 @@ void stopPump(){
 //Function for opening the liquid 1 solenoid and closing the liquid 2 solenoid
 void liquid1(){
   digitalWrite(relay_pin, HIGH);
-
-
-  
-
   //Testing
   digitalWrite(liquid1Led, HIGH);
   digitalWrite(liquid2Led, LOW);
@@ -73,10 +69,8 @@ void liquid1(){
 }
 
 //Function for opening liquid 2 solenoid and closing the liquid 1 solenoid
-//This is not needed since only one solenoid is used
 void liquid2(){
   digitalWrite(relay_pin, LOW);
-  
   //Testing
   digitalWrite(liquid1Led, LOW);
   digitalWrite(liquid2Led, HIGH);
