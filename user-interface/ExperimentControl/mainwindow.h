@@ -18,6 +18,7 @@ public:
     ~MainWindow(); 
 
 protected:
+    void closeEvent(QCloseEvent* event);
 
 private slots:
     void on_startPumpButton_clicked();
@@ -32,10 +33,19 @@ private slots:
 
     void on_liquid2Control_clicked();
 
+    void on_controlPSTATButton_clicked();
+
+    void checkIfDone();
+
+private:
+    void startExperiment();
+
 private:
     Ui::MainWindow *ui;
     ArduinoSerial *arduinoSerial;
     int comPortSelected = 0;
+
+    volatile bool experimentRunning;
 };
 
 #endif // MAINWINDOW_H
