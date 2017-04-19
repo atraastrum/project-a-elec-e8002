@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "dialog.h"
 #include <QDebug>
 #include "../../arduinoSerial/ArduinoSerial.h"
 
@@ -11,6 +12,7 @@ MainWindow::MainWindow(QWidget *parent) :
     arduinoSerial= new ArduinoSerial;
     ui->manualControlsGroup->setEnabled(false);
     ui->autoControlsGroup->setEnabled(false);
+    connect(ui->actionSetup, SIGNAL(triggered()), this, SLOT(Setup()));
 }
 
 MainWindow::~MainWindow()
@@ -85,4 +87,10 @@ void MainWindow::on_liquid2Control_clicked()
     {
         qDebug() << "Liquid 2 selected";
     }
+}
+void MainWindow::Setup()
+{
+       Dialog dialog;
+       dialog.setModal(true);
+       dialog.exec();
 }

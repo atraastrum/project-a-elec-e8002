@@ -31,6 +31,7 @@ private slots:
     void on_liquid1Control_clicked();
 
     void on_liquid2Control_clicked();
+    void Setup();
 
 private:
     Ui::MainWindow *ui;
