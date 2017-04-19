@@ -6,7 +6,7 @@
 
 QT       += core gui
 
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets printsupport
 
 TARGET = ExperimentControl
 TEMPLATE = app
@@ -27,12 +27,18 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     ../../arduinoSerial/ArduinoSerial.cpp \
     ../../arduinoSerial/Serial.cpp \
-    dialog.cpp
+    dialog.cpp \
+    potentiostat.cpp \
+    qcustomplot.cpp
+
 
 HEADERS  += mainwindow.h \
     ../../arduinoSerial/ArduinoSerial.h \
     ../../arduinoSerial/SerialClass.h \
-    dialog.h
+    dialog.h\
+    potentiostat.hpp \
+    gamry.hpp \
+    qcustomplot.h
 
 FORMS    += mainwindow.ui \
     dialog.ui
