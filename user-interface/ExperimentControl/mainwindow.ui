@@ -417,16 +417,11 @@ QPushButton:pressed {
       <property name="title">
        <string>Gamry Potentiostat Current Measurment</string>
       </property>
-      <widget class="QCustomPlot" name="graphWindow" native="true">
-       <property name="geometry">
-        <rect>
-         <x>30</x>
-         <y>30</y>
-         <width>511</width>
-         <height>361</height>
-        </rect>
-       </property>
-      </widget>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QCustomPlot" name="graphWindow" native="true"/>
+       </item>
+      </layout>
      </widget>
     </item>
    </layout>
