@@ -260,5 +260,3 @@ void MainWindow::startExperiment()
   QtConcurrent::run(runExperiment, &experimentRunning, settings, ui->graphWindow);
 }
 
-
->>>>>>> potentiostat_control
