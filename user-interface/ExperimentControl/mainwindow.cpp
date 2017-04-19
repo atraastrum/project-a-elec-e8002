@@ -118,14 +118,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    //arduinoSerial= new ArduinoSerial;
-    ui->manualControlsGroup->setEnabled(true);
-    //ui->autoControlsGroup->setEnabled(true);
+    arduinoSerial= new ArduinoSerial;
+    ui->manualControlsGroup->setEnabled(false);
+    ui->autoControlsGroup->setEnabled(false);
 }
 
 MainWindow::~MainWindow()
 {
-    //delete arduinoSerial;
+    delete arduinoSerial;
     delete ui;
 }
 
