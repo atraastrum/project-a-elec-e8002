@@ -14,7 +14,7 @@ public:
     //Set com port
     bool setComPort(int comport);
     //Connection check
-    char* connectionCheck();
+    std::string connectionCheck();
 	//Function for sending the start command to pump
 	bool startPump();
 	//Function for sending opening command to liquid 1 valve

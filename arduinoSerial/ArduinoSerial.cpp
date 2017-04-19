@@ -1,13 +1,17 @@
 #include "ArduinoSerial.h"
+#include <QDebug>
 
 ArduinoSerial::ArduinoSerial()
 {
-
+    SP = nullptr;
 }
 
 ArduinoSerial::~ArduinoSerial()
 {
-    delete SP;
+    if(SP)
+    {
+        delete SP;
+    }
 }
 
 bool ArduinoSerial::setComPort(int comport)
@@ -23,16 +27,17 @@ bool ArduinoSerial::setComPort(int comport)
 
     if (SP->IsConnected())
     {
-        printf("We are connected!");
+        //printf("We are connected!");
         return true;
     }
     return false;
 }
 
-char* ArduinoSerial::connectionCheck()
+//Requires debugging a lot, homo
+std::string ArduinoSerial::connectionCheck()
 {
-    char incomingData[4] = "";
-    int dataLength = 3;
+    char incomingData[256] = "";
+    int dataLength = 255;
     int readResult = 0;
 
     if(SP->IsConnected())
@@ -40,9 +45,14 @@ char* ArduinoSerial::connectionCheck()
         SP->WriteData("i", 1);
 
         readResult = SP->ReadData(incomingData, dataLength);
-        incomingData[readResult] = 0;
-    }
-    return incomingData;
+        qDebug() << "Readresult:" << readResult;
+        incomingData[readResult] = '\0';
+        qDebug() << incomingData;
+    } 
+    qDebug() << "data:";
+    std::string retVal(incomingData);
+    qDebug() << retVal.c_str();
+    return retVal;
 }
 
 bool ArduinoSerial::startPump()

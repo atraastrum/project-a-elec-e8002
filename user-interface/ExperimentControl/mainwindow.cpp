@@ -50,12 +50,15 @@ void MainWindow::on_comPortSelection_clicked()
     int com = ui->comPortSelect->value();
     if(arduinoSerial->setComPort(com))
     {
-        const char *data = arduinoSerial->connectionCheck();
-        if(strcmp(data, "UNO"))
-        {
+        //std::string data = arduinoSerial->connectionCheck();
+        //qDebug() << "check if data is correct";
+        //qDebug() << data.c_str();
+        //if(data == "UNO")
+        //{
+            qDebug() << "Enabling manual control";
             ui->manualControlsGroup->setEnabled(true);
             comPortSelected = 1;
-        }
+        //}
     }
 }
 
