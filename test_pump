@@ -1,0 +1,36 @@
+int EnablePin1 = 8;
+int duty;
+int PWMPinA1 = 11;  // Timer2
+int PWMPinB1 = 3;
+const byte CPin1 = A0;  // analog input channel
+int CRaw1;      // raw A/D value
+void setup() {
+  
+Serial.begin(9600);
+  pinMode(EnablePin1, OUTPUT);
+  pinMode(PWMPinA1, OUTPUT);
+  pinMode(PWMPinB1, OUTPUT);
+}//end setup
+
+void loop() {
+  digitalWrite(EnablePin1, HIGH); //enable the board
+  analogWrite(PWMPinB1, 0); //Set pinB to 0, when speed is written to pinA the motor will extend
+  for (duty = 0; duty <= 255; duty += 1) // ramp up speed
+  {
+    analogWrite(PWMPinA1, duty);
+    delay(5);
+  }
+  analogWrite(PWMPinA1, 255);//end at max speed
+  CRaw1 = analogRead(CPin1);
+  delay(2000);//hold speed
+  for (duty = 255; duty >= 0; duty -= 1) // ramp down speed
+  {
+    analogWrite(PWMPinA1, duty);
+    delay(20);
+  }
+  analogWrite(PWMPinA1, 0); //set to 0 speed
+  delay(500);
+  digitalWrite(EnablePin1, LOW);// Toggle enable to reset the power chips if we have had an overcurrent or overtemp fault
+  delay(500);  // Swap pins to make the motor change direction
+
+}
