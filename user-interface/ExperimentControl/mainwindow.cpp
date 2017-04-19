@@ -4,14 +4,26 @@
 #include <QThreadPool>
 #include <QCloseEvent>
 #include <QtConcurrent/QtConcurrent>
+#include "qcustomplot.h"
 #include "potentiostat.hpp"
 #include <iostream>
 
 #include "../../arduinoSerial/ArduinoSerial.h"
 
-void runExperiment(volatile bool* experimentRunning, float voltage, float time, float sampleRate, QCustomPlot* graphWindow)
+struct ExperimentSettings {
+  float vInit;
+  float tInit;
+  float vFinal;
+  float tFinal;
+  float sampleRate;
+  unsigned int pollingInterval;
+
+  float totalTime() { return tInit + tFinal;}
+};
+
+void runExperiment(volatile bool* experimentRunning, ExperimentSettings settings, QCustomPlot* graphWindow)
 {
-    float localtime = 0;
+/*    float localtime = 0;
     float waittime  = 1000;
     QVector<double> tdatabuffer;
     QVector<double> idatabuffer;
@@ -32,27 +44,38 @@ void runExperiment(volatile bool* experimentRunning, float voltage, float time, 
         if (localtime > time * 1000)
             break;
     }
+*/
 
-/*
     Gamry::Potentiostat pStat;
+    QVector<double> buffer;
+    QVector<double> bufferT;
+    float totalTimeLeft = settings.totalTime();
+
     try {
-        pStat.init("asdasd");
+        pStat.init("REF600-20017");
         pStat.open();
 
-        // 10 seconds measurement
-        pStat.setStepSignal(0.5f, 5.0f, -0.1f, 5.0f, 0.01f);
+        pStat.setStepSignal(settings.vInit, settings.tInit, settings.vFinal, settings.tFinal, settings.sampleRate);
+        //pStat.setStepSignal(0.5f, 5.0f, -0.1f, 5.0f, 0.01f);
         pStat.start();
 
-        size_t points_accuired = 0;
+
         do {
-          qDebug() << "Wait 1 sec and pull data...\n";
-          Sleep(1000);
+
+          Sleep(settings.pollingInterval);
+
+          if (*experimentRunning == false)
+              break;
+
           std::vector<Gamry::CookInformationPoint> data = pStat.pullDataItems(100);
-          points_accuired = data.size();
+
           for(int i = 0; i < data.size(); ++i)
           {
             Gamry::CookInformationPoint& item = data[i];
-            std::cout << item.Time << ';'
+            graphWindow->graph(0)->addData(item.Time, item.Im);
+            buffer.push_back(item.Im);
+            bufferT.push_back(item.Time);
+            /*std::cout << item.Time << ';'
                   << item.Im << ';'
                   << item.Arch << ';'
                   << item.IERange << ';'
@@ -62,17 +85,32 @@ void runExperiment(volatile bool* experimentRunning, float voltage, float time, 
                   << item.Vf << ';'
                   << item.Vsig << ';'
                   << item.Vu << ';'
-                  << std::endl;
+                  << std::endl;*/
+
           }
 
-        }while(points_accuired > 0);
+          if (buffer.size()) {
+            QVector<double> diff(buffer.size());
+            double mean = std::accumulate( buffer.begin(), buffer.end(), 0.0)/buffer.size();
+            std::transform(buffer.begin(), buffer.end(), diff.begin(), [mean](double y) { return y - mean; });
+            double sq_sum = std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
+            double stdev = std::sqrt(sq_sum / buffer.size());
+
+            graphWindow->yAxis->setRange(mean - 2.0 * stdev, mean + 2.0 * stdev);
+          }
+
+          if (bufferT.size() && bufferT.last() >= totalTimeLeft)
+            break;
+
+          qDebug() << "in the loop\n";
+        }while(true);
 
 
         pStat.close();
     } catch (...){
         qDebug() << "Unable to initizlize Pstat. Probably it is not connected.";
     }
-    */
+
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -194,6 +232,7 @@ void MainWindow::checkIfDone()
         QTimer::singleShot(PollTimeout, this, SLOT(checkIfDone()));
     }else {
         experimentRunning = true;
+        ui->graphWindow->replot();
         ui->controlPSTATButton->setText("Start Potentiostat");
     }
 }
@@ -203,8 +242,9 @@ void MainWindow::startExperiment()
   experimentRunning = true;
   ui->graphWindow->clearGraphs();
   ui->graphWindow->addGraph();
-  ui->graphWindow->xAxis->setRange(0, 10.0f);
-  QtConcurrent::run(runExperiment, &experimentRunning, 0.5f, 10.0f, 0.01f, ui->graphWindow);
+  ExperimentSettings settings = {0.5f, 50.0f, -0.1f, 50.0f, 0.01f, 100};
+  ui->graphWindow->xAxis->setRange(0, settings.totalTime());
+  QtConcurrent::run(runExperiment, &experimentRunning, settings, ui->graphWindow);
 }
 
 

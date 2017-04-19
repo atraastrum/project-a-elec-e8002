@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>745</width>
-    <height>679</height>
+    <height>685</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -420,10 +420,10 @@ QPushButton:pressed {
       <widget class="QCustomPlot" name="graphWindow" native="true">
        <property name="geometry">
         <rect>
-         <x>40</x>
+         <x>30</x>
          <y>30</y>
          <width>511</width>
-         <height>351</height>
+         <height>361</height>
         </rect>
        </property>
       </widget>
@@ -437,7 +437,7 @@ QPushButton:pressed {
      <x>0</x>
      <y>0</y>
      <width>745</width>
-     <height>21</height>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMenu_Setup">
