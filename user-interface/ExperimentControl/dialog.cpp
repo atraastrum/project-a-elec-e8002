@@ -6,6 +6,9 @@ Dialog::Dialog(QWidget *parent) :
     ui(new Ui::Dialog)
 {
     ui->setupUi(this);
+    QRegExp regExp("^[1-9][0-9]{1,8}$");
+    ui->SampleRate->setValidator(new QRegExpValidator(regExp, this));
+
 }
 
 Dialog::~Dialog()
