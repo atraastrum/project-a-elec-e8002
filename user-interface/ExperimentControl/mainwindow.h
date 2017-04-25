@@ -38,6 +38,8 @@ private slots:
 
     void checkIfDone();
 
+    void on_measurementStartButton_clicked();
+
 private:
     void startExperiment();
 

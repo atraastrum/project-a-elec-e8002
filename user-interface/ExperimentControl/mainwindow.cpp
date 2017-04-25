@@ -5,6 +5,10 @@
 #include <QThreadPool>
 #include <QCloseEvent>
 #include <QtConcurrent/QtConcurrent>
+
+#include <QIntValidator>
+#include <QDoubleValidator>
+
 #include "qcustomplot.h"
 #include "potentiostat.hpp"
 #include <iostream>
@@ -123,6 +127,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->manualControlsGroup->setEnabled(false);
     ui->autoControlsGroup->setEnabled(false);
     connect(ui->actionSetup, SIGNAL(triggered()), this, SLOT(Setup()));
+
+    // Adding Validators to Auto Mode LineEdit Objects
+    auto intervalInputValidator = new QIntValidator();
+    intervalInputValidator->setBottom(1);
+    auto voltageInputValidator = new QDoubleValidator();
+
+    ui->intervalInput->setValidator(intervalInputValidator);
+    ui->timeInput->setValidator(intervalInputValidator);
+    ui->automodeVoltageInput->setValidator(voltageInputValidator);
 }
 
 MainWindow::~MainWindow()
@@ -260,3 +273,21 @@ void MainWindow::startExperiment()
   QtConcurrent::run(runExperiment, &experimentRunning, settings, ui->graphWindow);
 }
 
+
+void MainWindow::on_measurementStartButton_clicked()
+{
+  QLocale locale;
+  bool ok = false;
+  float voltage  = locale.toFloat(ui->automodeVoltageInput->text(), &ok);
+  float time     = locale.toFloat(ui->timeInput->text(), &ok);
+  float interval = locale.toFloat(ui->intervalInput->text(), &ok);
+
+  if (ok == false) {
+    QMessageBox errorMsgBox;
+    errorMsgBox.setText("The paramaters for esperiment are invalid. Check them please");
+    errorMsgBox.exec();
+    return;
+  }
+
+  qDebug() << voltage << time << interval ;
+}

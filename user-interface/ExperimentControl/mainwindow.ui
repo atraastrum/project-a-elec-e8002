@@ -322,7 +322,7 @@ QPushButton:pressed {
          <property name="title">
           <string>Voltage</string>
          </property>
-         <widget class="QLineEdit" name="lineEdit">
+         <widget class="QLineEdit" name="automodeVoltageInput">
           <property name="geometry">
            <rect>
             <x>10</x>
@@ -464,7 +464,7 @@ QPushButton:pressed {
      <x>0</x>
      <y>0</y>
      <width>745</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMenu_Setup">
