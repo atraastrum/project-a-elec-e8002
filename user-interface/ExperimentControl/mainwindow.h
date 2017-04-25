@@ -9,6 +9,18 @@ namespace Ui {
 class MainWindow;
 }
 
+struct ExperimentSettings {
+  float vInit;
+  float tInit;
+  float vFinal;
+  float tFinal;
+  float sampleRate;
+  unsigned int pollingInterval;
+
+  float totalTime() { return tInit + tFinal;}
+};
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -41,7 +53,7 @@ private slots:
     void on_measurementStartButton_clicked();
 
 private:
-    void startExperiment();
+    void startExperiment(ExperimentSettings settings);
 
 private:
     Ui::MainWindow *ui;

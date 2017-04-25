@@ -15,16 +15,6 @@
 
 #include "../../arduinoSerial/ArduinoSerial.h"
 
-struct ExperimentSettings {
-  float vInit;
-  float tInit;
-  float vFinal;
-  float tFinal;
-  float sampleRate;
-  unsigned int pollingInterval;
-
-  float totalTime() { return tInit + tFinal;}
-};
 
 void runExperiment(volatile bool* experimentRunning, ExperimentSettings settings, QCustomPlot* graphWindow)
 {
@@ -244,7 +234,8 @@ void MainWindow::on_controlPSTATButton_clicked()
   }
 
   ui->controlPSTATButton->setText("Stop Potentiostat");
-  startExperiment();
+  ExperimentSettings settings = {0.5f, 50.0f, -0.1f, 50.0f, 0.01f, 100};
+  startExperiment(settings);
   checkIfDone();
 }
 
@@ -260,15 +251,16 @@ void MainWindow::checkIfDone()
         experimentRunning = true;
         ui->graphWindow->replot();
         ui->controlPSTATButton->setText("Start Potentiostat");
+        ui->measurementStartButton->setText("Start");
     }
 }
 
-void MainWindow::startExperiment()
+void MainWindow::startExperiment(ExperimentSettings settings)
 {
   experimentRunning = true;
   ui->graphWindow->clearGraphs();
   ui->graphWindow->addGraph();
-  ExperimentSettings settings = {0.5f, 50.0f, -0.1f, 50.0f, 0.01f, 100};
+
   ui->graphWindow->xAxis->setRange(0, settings.totalTime());
   QtConcurrent::run(runExperiment, &experimentRunning, settings, ui->graphWindow);
 }
@@ -276,6 +268,18 @@ void MainWindow::startExperiment()
 
 void MainWindow::on_measurementStartButton_clicked()
 {
+  // Starting pstat experiment
+  experimentRunning = false;
+  if (QThreadPool::globalInstance()->activeThreadCount()) {
+    qDebug() << "Waiting for background threads to finnish their work";
+    QThreadPool::globalInstance()->waitForDone();
+  }
+
+  if (ui->measurementStartButton->text() == "Stop") {
+    ui->measurementStartButton->setText("Start");
+    return;
+  }
+
   QLocale locale;
   bool ok = false;
   float voltage  = locale.toFloat(ui->automodeVoltageInput->text(), &ok);
@@ -289,5 +293,9 @@ void MainWindow::on_measurementStartButton_clicked()
     return;
   }
 
-  qDebug() << voltage << time << interval ;
+  ui->measurementStartButton->setText("Stop");
+
+  ExperimentSettings settings = {voltage, time/2.0f, voltage, time/2.0f, 0.01f, 100};
+  startExperiment(settings);
+  checkIfDone();
 }
