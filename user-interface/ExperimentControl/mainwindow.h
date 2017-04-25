@@ -52,8 +52,11 @@ private slots:
 
     void on_measurementStartButton_clicked();
 
+    void autoChangeLiquid();
+
 private:
     void startExperiment(ExperimentSettings settings);
+
 
 private:
     Ui::MainWindow *ui;
@@ -61,6 +64,7 @@ private:
     int comPortSelected = 0;
 
     volatile bool experimentRunning;
+    QTimer* autoModeTimerForLiquids;
 };
 
 #endif // MAINWINDOW_H

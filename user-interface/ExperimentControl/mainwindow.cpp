@@ -110,7 +110,8 @@ void runExperiment(volatile bool* experimentRunning, ExperimentSettings settings
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    autoModeTimerForLiquids(new QTimer{this})
 {
     ui->setupUi(this);
     arduinoSerial= new ArduinoSerial;
@@ -126,6 +127,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->intervalInput->setValidator(intervalInputValidator);
     ui->timeInput->setValidator(intervalInputValidator);
     ui->automodeVoltageInput->setValidator(voltageInputValidator);
+
+    //For auto control to change liquids
+    QObject::connect(autoModeTimerForLiquids, SIGNAL(timeout()), this, SLOT(autoChangeLiquid()));
 }
 
 MainWindow::~MainWindow()
@@ -252,6 +256,7 @@ void MainWindow::checkIfDone()
         ui->graphWindow->replot();
         ui->controlPSTATButton->setText("Start Potentiostat");
         ui->measurementStartButton->setText("Start");
+        autoModeTimerForLiquids->stop();
     }
 }
 
@@ -265,9 +270,41 @@ void MainWindow::startExperiment(ExperimentSettings settings)
   QtConcurrent::run(runExperiment, &experimentRunning, settings, ui->graphWindow);
 }
 
+void MainWindow::autoChangeLiquid()
+{
+  static bool setLiquid1 = true;
+  if (setLiquid1) {
+    arduinoSerial->openLiquid1();
+    qDebug() << "LQ1";
+    setLiquid1 = false;
+  } else {
+    arduinoSerial->openLiquid2();
+    qDebug() << "LQ2";
+    setLiquid1 = true;
+  }
+}
+
 
 void MainWindow::on_measurementStartButton_clicked()
 {
+  QLocale locale;
+  bool ok = false;
+  float voltage  = locale.toFloat(ui->automodeVoltageInput->text(), &ok);
+  float time     = locale.toFloat(ui->timeInput->text(), &ok);
+  float interval = locale.toFloat(ui->intervalInput->text(), &ok);
+
+
+  if (ok == false) {
+    QMessageBox errorMsgBox;
+    errorMsgBox.setText("The paramaters for esperiment are invalid. Check them please");
+    errorMsgBox.exec();
+    return;
+  }
+
+  arduinoSerial->startPump();
+  autoModeTimerForLiquids->start(interval);
+
+
   // Starting pstat experiment
   experimentRunning = false;
   if (QThreadPool::globalInstance()->activeThreadCount()) {
@@ -277,19 +314,6 @@ void MainWindow::on_measurementStartButton_clicked()
 
   if (ui->measurementStartButton->text() == "Stop") {
     ui->measurementStartButton->setText("Start");
-    return;
-  }
-
-  QLocale locale;
-  bool ok = false;
-  float voltage  = locale.toFloat(ui->automodeVoltageInput->text(), &ok);
-  float time     = locale.toFloat(ui->timeInput->text(), &ok);
-  float interval = locale.toFloat(ui->intervalInput->text(), &ok);
-
-  if (ok == false) {
-    QMessageBox errorMsgBox;
-    errorMsgBox.setText("The paramaters for esperiment are invalid. Check them please");
-    errorMsgBox.exec();
     return;
   }
 
