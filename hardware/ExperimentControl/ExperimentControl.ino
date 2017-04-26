@@ -90,6 +90,7 @@ void setup() {
   pinMode(PWMPinA1, OUTPUT);
   pinMode(PWMPinB1, OUTPUT);
   pinMode(relay_pin, OUTPUT);
+  digitalWrite(relay_pin, HIGH);
   //
   //testing leds
   pinMode(pumpLed, OUTPUT);
