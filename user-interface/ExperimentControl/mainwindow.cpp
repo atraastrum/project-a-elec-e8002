@@ -18,11 +18,12 @@
 
 void runExperiment(volatile bool* experimentRunning, volatile bool* pstatInitialized, volatile bool* delayTimeOut, ExperimentSettings settings, QCustomPlot* graphWindow)
 {
+    float totalTimeLeft = settings.totalTime();
 #if 0
     Gamry::Potentiostat pStat;
     QVector<double> buffer;
     QVector<double> bufferT;
-    float totalTimeLeft = settings.totalTime();
+
 
     try {
         pStat.init("REF600-20017");
@@ -84,30 +85,36 @@ void runExperiment(volatile bool* experimentRunning, volatile bool* pstatInitial
         qDebug() << "Unable to initizlize Pstat. Probably it is not connected.";
     }
 #endif
+#if 1
   qDebug() << "Started thread";
   qDebug() << "Inializing\n";
-  Sleep(10000);
+  Sleep(2000);
   *pstatInitialized = true;
   qDebug() << "Inialized\n";
 
   if (settings.delay > 0) {
-    Sleep(settings.delay * 1000);
+    Sleep(static_cast<unsigned int>(settings.delay * 1000.0f));
   }
 
   *delayTimeOut = true;
 
+  int wait_time = 100;
   while (true) {
     if (*experimentRunning == false){
-      Sleep(5000);
+      Sleep(100);
       break;
     }
-    qDebug() << "Doing Work";
-    Sleep(100);
+    qDebug() << "Doing Work " << totalTimeLeft;
+    Sleep(wait_time);
+    totalTimeLeft -= static_cast<float>(wait_time)/1000.0f;
+    if (totalTimeLeft < 0.f)
+        break;
   }
 
   *pstatInitialized = false;
   *delayTimeOut = false;
   qDebug() << "Stoped thread";
+#endif
 }
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -262,7 +269,6 @@ void MainWindow::checkIfDone()
         experimentRunning = false;
         ui->graphWindow->replot();
         ui->controlPSTATButton->setText("Start Potentiostat");
-        ui->measurementStartButton->setText("Start");
     }
 }
 
@@ -297,7 +303,7 @@ void MainWindow::waitForPstatToInitializeAndStart()
 {
 
   if (m_pstatInitialized) {
-    ui->notificationLabel->setText("Running the pump for " + QString::number(1111) + " seconds\nbefore measuring current");
+    ui->notificationLabel->setText("Running the pump for " + ui->automodeDelayInput->text() + " seconds\nbefore measuring current");
     //arduinoSerial->startPump();
     //arduinoSerial->openLiquid1();
     waitForDelay();
@@ -336,6 +342,10 @@ void MainWindow::checkIfDoneAuto()
         //arduinoSerial->stopPump();
         //arduinoSerial->openLiquid1();
 
+        ui->automodeVoltageInput->setDisabled(false);
+        ui->timeInput->setDisabled(false);
+        ui->intervalInput->setDisabled(false);
+        ui->automodeDelayInput->setDisabled(false);
         ui->measurementStartButton->setText("Start");
     }
 }
@@ -354,14 +364,16 @@ void MainWindow::on_measurementStartButton_clicked()
   }
   ui->notificationLabel->setVisible(false);
 
-#if 0
+
   QLocale locale;
   bool ok = false;
   m_autoVoltage  = locale.toFloat(ui->automodeVoltageInput->text(), &ok);
   m_autoTime     = locale.toFloat(ui->timeInput->text(), &ok);
   m_autoInterval = locale.toFloat(ui->intervalInput->text(), &ok);
+  m_autoDelay = locale.toFloat(ui->automodeDelayInput->text(), &ok);
 
 
+#if 0
   if (ok == false) {
     QMessageBox errorMsgBox;
     errorMsgBox.setText("The paramaters for esperiment are invalid. Check them please");
@@ -378,6 +390,7 @@ void MainWindow::on_measurementStartButton_clicked()
   ui->automodeVoltageInput->setDisabled(true);
   ui->timeInput->setDisabled(true);
   ui->intervalInput->setDisabled(true);
+  ui->automodeDelayInput->setDisabled(true);
   ui->measurementStartButton->setDisabled(true);
   ui->measurementStartButton->setText("Please Wait");
   ui->notificationLabel->setText("Potentiostat is initializing.\nPlease Wait and do nothing.");
@@ -385,8 +398,8 @@ void MainWindow::on_measurementStartButton_clicked()
   waitForPstatToInitializeAndStart();
 
 
-  //ExperimentSettings settings = {voltage, time/2.0f, voltage, time/2.0f, 0.01f, 100, delay};
-  ExperimentSettings settings = {0, 0, 0, 0, 0.01f, 100, 10};
+  ExperimentSettings settings = {m_autoVoltage, m_autoTime/2.0f, m_autoVoltage, m_autoTime/2.0f, 0.01f, 100, m_autoDelay};
+  //ExperimentSettings settings = {0, 0, 0, 0, 0.01f, 100, 10};
   startExperiment(settings);
-  checkIfDone();
+  checkIfDoneAuto();
 }

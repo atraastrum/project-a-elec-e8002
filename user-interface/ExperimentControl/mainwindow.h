@@ -16,7 +16,7 @@ struct ExperimentSettings {
   float tFinal;
   float sampleRate;
   unsigned int pollingInterval;
-  unsigned int delay;
+  float delay;
 
   float totalTime() { return tInit + tFinal;}
 };
@@ -79,6 +79,7 @@ private:
     float m_autoVoltage;
     float m_autoTime;
     float m_autoInterval;
+    float m_autoDelay;
 
 };
 
