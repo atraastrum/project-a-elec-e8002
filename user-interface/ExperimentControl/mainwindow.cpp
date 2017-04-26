@@ -280,10 +280,16 @@ void MainWindow::checkIfDone()
     static const int PollTimeout = 100;
     if (QThreadPool::globalInstance()->activeThreadCount()){
         ui->graphWindow->replot();
+        addItemsToDataTable();
         QTimer::singleShot(PollTimeout, this, SLOT(checkIfDone()));
     }else {
         experimentRunning = false;
+        m_pstatInitialized = false;
+        m_delayTimeOut = false;
+
         ui->graphWindow->replot();
+        addItemsToDataTable();
+
         ui->controlPSTATButton->setText("Start Potentiostat");
     }
 }
@@ -380,11 +386,13 @@ void MainWindow::checkIfDoneAuto()
         addItemsToDataTable();
         QTimer::singleShot(PollTimeout, this, SLOT(checkIfDoneAuto()));
     }else {
-        ui->graphWindow->replot();
-        addItemsToDataTable();
         experimentRunning = false;
         m_pstatInitialized = false;
         m_delayTimeOut = false;
+
+        ui->graphWindow->replot();
+        addItemsToDataTable();
+
         //arduinoSerial->stopPump();
         //arduinoSerial->openLiquid1();
 
