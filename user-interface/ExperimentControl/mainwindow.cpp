@@ -137,8 +137,12 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     arduinoSerial= new ArduinoSerial;
-    ui->manualControlsGroup->setEnabled(false);
-    ui->autoControlsGroup->setEnabled(true);
+    ui->modeSelectionGroupBox->setDisabled(true);
+
+    // For debugging
+    //ui->manualControlsGroup->setEnabled(true);
+    //ui->autoControlsGroup->setEnabled(true);
+
     connect(ui->actionSetup, SIGNAL(triggered()), this, SLOT(Setup()));
 
     // Adding Validators to Auto Mode LineEdit Objects
@@ -211,7 +215,9 @@ void MainWindow::on_comPortSelection_clicked()
         //if(data == "UNO")
         //{
             qDebug() << "Enabling manual control";
+            ui->modeSelectionGroupBox->setDisabled(false);
             ui->manualControlsGroup->setEnabled(true);
+
             comPortSelected = 1;
         //}
     }

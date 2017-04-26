@@ -164,7 +164,7 @@ QPushButton:pressed {
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QGroupBox" name="groupBox_2">
+       <widget class="QGroupBox" name="modeSelectionGroupBox">
         <property name="title">
          <string>Mode</string>
         </property>
@@ -223,6 +223,9 @@ QPushButton:pressed {
       </item>
       <item row="2" column="0">
        <widget class="QGroupBox" name="autoControlsGroup">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="title">
          <string>Automatic Controls</string>
         </property>
