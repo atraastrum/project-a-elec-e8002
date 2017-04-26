@@ -407,9 +407,6 @@ QPushButton:pressed {
         </property>
        </widget>
       </item>
-      <item row="1" column="1" colspan="2">
-       <widget class="QTextBrowser" name="textBrowser"/>
-      </item>
       <item row="0" column="0" rowspan="2">
        <widget class="QGroupBox" name="manualControlsGroup">
         <property name="enabled">
@@ -567,8 +564,28 @@ QPushButton:pressed {
       <item row="0" column="1">
        <widget class="QLabel" name="label_5">
         <property name="text">
-         <string>Console</string>
+         <string>Data From PotentioStat</string>
         </property>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="2">
+       <widget class="QTableWidget" name="pstatDataTable">
+        <property name="rowCount">
+         <number>0</number>
+        </property>
+        <property name="columnCount">
+         <number>10</number>
+        </property>
+        <column/>
+        <column/>
+        <column/>
+        <column/>
+        <column/>
+        <column/>
+        <column/>
+        <column/>
+        <column/>
+        <column/>
        </widget>
       </item>
      </layout>

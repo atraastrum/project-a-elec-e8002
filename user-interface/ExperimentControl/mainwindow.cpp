@@ -116,6 +116,8 @@ void runExperiment(QVector<volatile bool*> array, ExperimentSettings settings, Q
       break;
     }
     qDebug() << "Doing Work " << totalTimeLeft;
+    Gamry::CookInformationPoint item = {totalTimeLeft, 2,3,4,5,6,7,8,9,10};
+    data->push_back(item);
     Sleep(wait_time);
     totalTimeLeft -= static_cast<float>(wait_time)/1000.0f;
     if (totalTimeLeft < 0.f)
@@ -155,6 +157,9 @@ MainWindow::MainWindow(QWidget *parent) :
     m_aemDotCount = 0;
     m_pstatInitialized = false;
     m_delayTimeOut = false;
+    m_lastSizeBeforeAddToTable = 0;
+
+    ui->pstatDataTable->setHorizontalHeaderLabels(QStringList() << "Time" << "Im" <<"Vf" <<"Vu" <<"Q" <<"Vsig" <<"Arch" <<"IERange" << "Overload" << "StopTest" );
 }
 
 MainWindow::~MainWindow()
@@ -285,21 +290,43 @@ void MainWindow::checkIfDone()
 
 void MainWindow::startExperiment(ExperimentSettings settings)
 {
-  experimentRunning = true;
-  m_pstatInitialized = false;
-  m_delayTimeOut = false;
+    experimentRunning = true;
+    m_pstatInitialized = false;
+    m_delayTimeOut = false;
 
-  allDataFromPstat.clear();
-  ui->graphWindow->clearGraphs();
-  ui->graphWindow->addGraph();
+    allDataFromPstat.clear();
+    m_lastSizeBeforeAddToTable = 0;
+    ui->graphWindow->clearGraphs();
+    ui->graphWindow->addGraph();
 
-  ui->graphWindow->xAxis->setRange(0, settings.totalTime());
-  QVector<volatile bool*> vec;
-  vec.push_back(&experimentRunning);
-  vec.push_back(&m_pstatInitialized);
-  vec.push_back(&m_delayTimeOut);
-  //volatile bool *array[3] = {&experimentRunning, &m_pstatInitialized, &m_delayTimeOut};
-  QtConcurrent::run(runExperiment, vec, settings, ui->graphWindow, &allDataFromPstat);
+    ui->graphWindow->xAxis->setRange(0, settings.totalTime());
+    QVector<volatile bool*> vec;
+    vec.push_back(&experimentRunning);
+    vec.push_back(&m_pstatInitialized);
+    vec.push_back(&m_delayTimeOut);
+    //volatile bool *array[3] = {&experimentRunning, &m_pstatInitialized, &m_delayTimeOut};
+    QtConcurrent::run(runExperiment, vec, settings, ui->graphWindow, &allDataFromPstat);
+}
+
+void MainWindow::addItemsToDataTable()
+{
+    for (m_lastSizeBeforeAddToTable; m_lastSizeBeforeAddToTable < allDataFromPstat.size(); ++m_lastSizeBeforeAddToTable) {
+        Gamry::CookInformationPoint item = allDataFromPstat[m_lastSizeBeforeAddToTable];
+        ui->pstatDataTable->insertRow(m_lastSizeBeforeAddToTable);
+        float data[7] = {item.Time, item.Im, item.Vf, item.Vu, item.Q , item.Vsig, item.Arch,};
+        int c = 0;
+        for(; c < 7; ++c) {
+            auto *newItem = new QTableWidgetItem(QString::number(data[c]));
+            ui->pstatDataTable->setItem(m_lastSizeBeforeAddToTable, c, newItem);
+        }
+        auto *newItem = new QTableWidgetItem(QString::number(item.IERange));
+        ui->pstatDataTable->setItem(m_lastSizeBeforeAddToTable, c++, newItem);
+        newItem = new QTableWidgetItem(QString::number(item.Overload));
+        ui->pstatDataTable->setItem(m_lastSizeBeforeAddToTable, c++, newItem);
+        newItem = new QTableWidgetItem(QString::number(item.StopTest));
+        ui->pstatDataTable->setItem(m_lastSizeBeforeAddToTable, c++, newItem);
+        ui->pstatDataTable->scrollToBottom();
+    }
 }
 
 void MainWindow::autoChangeLiquid()
@@ -350,9 +377,11 @@ void MainWindow::checkIfDoneAuto()
     static const int PollTimeout = 100;
     if (QThreadPool::globalInstance()->activeThreadCount()){
         ui->graphWindow->replot();
+        addItemsToDataTable();
         QTimer::singleShot(PollTimeout, this, SLOT(checkIfDoneAuto()));
     }else {
         ui->graphWindow->replot();
+        addItemsToDataTable();
         experimentRunning = false;
         m_pstatInitialized = false;
         m_delayTimeOut = false;

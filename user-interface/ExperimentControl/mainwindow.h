@@ -64,7 +64,7 @@ private slots:
 
 private:
     void startExperiment(ExperimentSettings settings);
-
+    void addItemsToDataTable();
 
 private:
     Ui::MainWindow *ui;
@@ -81,6 +81,7 @@ private:
     float m_autoTime;
     float m_autoInterval;
     float m_autoDelay;
+    int m_lastSizeBeforeAddToTable;
 
     QVector<Gamry::CookInformationPoint> allDataFromPstat;
 
