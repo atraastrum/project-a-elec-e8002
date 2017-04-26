@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "gamry.hpp"
 
 class ArduinoSerial;
 
@@ -80,6 +81,8 @@ private:
     float m_autoTime;
     float m_autoInterval;
     float m_autoDelay;
+
+    QVector<Gamry::CookInformationPoint> allDataFromPstat;
 
 };
 

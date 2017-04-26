@@ -16,8 +16,12 @@
 #include "../../arduinoSerial/ArduinoSerial.h"
 
 
-void runExperiment(volatile bool* experimentRunning, volatile bool* pstatInitialized, volatile bool* delayTimeOut, ExperimentSettings settings, QCustomPlot* graphWindow)
+void runExperiment(QVector<volatile bool*> array, ExperimentSettings settings, QCustomPlot* graphWindow, QVector<Gamry::CookInformationPoint>* data)
 {
+    volatile bool* experimentRunning = array[0];
+    volatile bool* pstatInitialized = array[1];
+    volatile bool* delayTimeOut = array[2];
+
     float totalTimeLeft = settings.totalTime();
 #if 0
     Gamry::Potentiostat pStat;
@@ -28,6 +32,13 @@ void runExperiment(volatile bool* experimentRunning, volatile bool* pstatInitial
     try {
         pStat.init("REF600-20017");
         pStat.open();
+        Sleep(1000);
+        *pstatInitialized = true;
+
+        if (settings.delay > 0) {
+          Sleep(static_cast<unsigned int>(settings.delay * 1000.0f));
+        }
+        *delayTimeOut = true;
 
         pStat.setStepSignal(settings.vInit, settings.tInit, settings.vFinal, settings.tFinal, settings.sampleRate);
         //pStat.setStepSignal(0.5f, 5.0f, -0.1f, 5.0f, 0.01f);
@@ -75,12 +86,12 @@ void runExperiment(volatile bool* experimentRunning, volatile bool* pstatInitial
 
           if (bufferT.size() && bufferT.last() >= totalTimeLeft)
             break;
-
-          qDebug() << "in the loop\n";
         }while(true);
 
 
         pStat.close();
+        *pstatInitialized = false;
+        *delayTimeOut = false;
     } catch (...){
         qDebug() << "Unable to initizlize Pstat. Probably it is not connected.";
     }
@@ -278,11 +289,17 @@ void MainWindow::startExperiment(ExperimentSettings settings)
   m_pstatInitialized = false;
   m_delayTimeOut = false;
 
+  allDataFromPstat.clear();
   ui->graphWindow->clearGraphs();
   ui->graphWindow->addGraph();
 
   ui->graphWindow->xAxis->setRange(0, settings.totalTime());
-  QtConcurrent::run(runExperiment, &experimentRunning, &m_pstatInitialized, &m_delayTimeOut, settings, ui->graphWindow);
+  QVector<volatile bool*> vec;
+  vec.push_back(&experimentRunning);
+  vec.push_back(&m_pstatInitialized);
+  vec.push_back(&m_delayTimeOut);
+  //volatile bool *array[3] = {&experimentRunning, &m_pstatInitialized, &m_delayTimeOut};
+  QtConcurrent::run(runExperiment, vec, settings, ui->graphWindow, &allDataFromPstat);
 }
 
 void MainWindow::autoChangeLiquid()
