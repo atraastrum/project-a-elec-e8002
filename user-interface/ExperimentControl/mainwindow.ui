@@ -180,6 +180,7 @@ QPushButton:pressed {
             <property name="text">
              <string>Auto</string>
             </property>
+<<<<<<< HEAD
            </item>
           </widget>
          </item>
@@ -538,6 +539,43 @@ QPushButton:pressed {
        </widget>
       </item>
      </layout>
+    </item>
+    <item row="0" column="1" rowspan="3">
+     <widget class="QGroupBox" name="groupBoxPlot">
+      <property name="title">
+       <string>Gamry Potentiostat Current Measurment</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QCustomPlot" name="graphWindow" native="true">
+         <widget class="QLabel" name="notificationLabel">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>100</x>
+            <y>130</y>
+            <width>371</width>
+            <height>111</height>
+           </rect>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>20</pointsize>
+           </font>
+          </property>
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </item>
    </layout>
   </widget>

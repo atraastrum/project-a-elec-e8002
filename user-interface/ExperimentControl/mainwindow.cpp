@@ -5,48 +5,20 @@
 #include <QThreadPool>
 #include <QCloseEvent>
 #include <QtConcurrent/QtConcurrent>
+
+#include <QIntValidator>
+#include <QDoubleValidator>
+
 #include "qcustomplot.h"
 #include "potentiostat.hpp"
 #include <iostream>
 
 #include "../../arduinoSerial/ArduinoSerial.h"
 
-struct ExperimentSettings {
-  float vInit;
-  float tInit;
-  float vFinal;
-  float tFinal;
-  float sampleRate;
-  unsigned int pollingInterval;
 
-  float totalTime() { return tInit + tFinal;}
-};
-
-void runExperiment(volatile bool* experimentRunning, ExperimentSettings settings, QCustomPlot* graphWindow)
+void runExperiment(volatile bool* experimentRunning, volatile bool* pstatInitialized, volatile bool* delayTimeOut, ExperimentSettings settings, QCustomPlot* graphWindow)
 {
-/*    float localtime = 0;
-    float waittime  = 1000;
-    QVector<double> tdatabuffer;
-    QVector<double> idatabuffer;
-
-    if (*experimentRunning == false)
-        return;
-
-    qDebug() << "run";
-    while (true)
-    {
-        if (*experimentRunning == false)
-            return;
-
-        graphWindow->graph(0)->addData(localtime/1000.0f, 1.0f);
-        Sleep(waittime);
-        localtime += waittime;
-        qDebug() << "I'm running";
-        if (localtime > time * 1000)
-            break;
-    }
-*/
-
+#if 0
     Gamry::Potentiostat pStat;
     QVector<double> buffer;
     QVector<double> bufferT;
@@ -111,18 +83,60 @@ void runExperiment(volatile bool* experimentRunning, ExperimentSettings settings
     } catch (...){
         qDebug() << "Unable to initizlize Pstat. Probably it is not connected.";
     }
+#endif
+  qDebug() << "Started thread";
+  qDebug() << "Inializing\n";
+  Sleep(10000);
+  *pstatInitialized = true;
+  qDebug() << "Inialized\n";
 
+  if (settings.delay > 0) {
+    Sleep(settings.delay * 1000);
+  }
+
+  *delayTimeOut = true;
+
+  while (true) {
+    if (*experimentRunning == false){
+      Sleep(5000);
+      break;
+    }
+    qDebug() << "Doing Work";
+    Sleep(100);
+  }
+
+  *pstatInitialized = false;
+  *delayTimeOut = false;
+  qDebug() << "Stoped thread";
 }
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    autoModeTimerForLiquids(new QTimer{this})
 {
     ui->setupUi(this);
     arduinoSerial= new ArduinoSerial;
     ui->manualControlsGroup->setEnabled(false);
-    ui->autoControlsGroup->setEnabled(false);
+    ui->autoControlsGroup->setEnabled(true);
     connect(ui->actionSetup, SIGNAL(triggered()), this, SLOT(Setup()));
+
+    // Adding Validators to Auto Mode LineEdit Objects
+    auto intervalInputValidator = new QIntValidator();
+    intervalInputValidator->setBottom(1);
+    auto voltageInputValidator = new QDoubleValidator();
+
+    ui->intervalInput->setValidator(intervalInputValidator);
+    ui->timeInput->setValidator(intervalInputValidator);
+    ui->automodeVoltageInput->setValidator(voltageInputValidator);
+
+    //For auto control to change liquids
+    QObject::connect(autoModeTimerForLiquids, SIGNAL(timeout()), this, SLOT(autoChangeLiquid()));
+
+    ui->notificationLabel->setVisible(false);
+    m_aemDotCount = 0;
+    m_pstatInitialized = false;
+    m_delayTimeOut = false;
 }
 
 MainWindow::~MainWindow()
@@ -231,7 +245,8 @@ void MainWindow::on_controlPSTATButton_clicked()
   }
 
   ui->controlPSTATButton->setText("Stop Potentiostat");
-  startExperiment();
+  ExperimentSettings settings = {0.5f, 50.0f, -0.1f, 50.0f, 0.01f, 100, 0};
+  startExperiment(settings);
   checkIfDone();
 }
 
@@ -244,19 +259,134 @@ void MainWindow::checkIfDone()
         ui->graphWindow->replot();
         QTimer::singleShot(PollTimeout, this, SLOT(checkIfDone()));
     }else {
-        experimentRunning = true;
+        experimentRunning = false;
         ui->graphWindow->replot();
         ui->controlPSTATButton->setText("Start Potentiostat");
+        ui->measurementStartButton->setText("Start");
     }
 }
 
-void MainWindow::startExperiment()
+void MainWindow::startExperiment(ExperimentSettings settings)
 {
   experimentRunning = true;
+  m_pstatInitialized = false;
+  m_delayTimeOut = false;
+
   ui->graphWindow->clearGraphs();
   ui->graphWindow->addGraph();
-  ExperimentSettings settings = {0.5f, 50.0f, -0.1f, 50.0f, 0.01f, 100};
+
   ui->graphWindow->xAxis->setRange(0, settings.totalTime());
-  QtConcurrent::run(runExperiment, &experimentRunning, settings, ui->graphWindow);
+  QtConcurrent::run(runExperiment, &experimentRunning, &m_pstatInitialized, &m_delayTimeOut, settings, ui->graphWindow);
 }
 
+void MainWindow::autoChangeLiquid()
+{
+  static bool setLiquid1 = true;
+  if (setLiquid1) {
+    arduinoSerial->openLiquid1();
+    qDebug() << "LQ1";
+    setLiquid1 = false;
+  } else {
+    arduinoSerial->openLiquid2();
+    qDebug() << "LQ2";
+    setLiquid1 = true;
+  }
+}
+
+void MainWindow::waitForPstatToInitializeAndStart()
+{
+
+  if (m_pstatInitialized) {
+    ui->notificationLabel->setText("Running the pump for " + QString::number(1111) + " seconds\nbefore measuring current");
+    //arduinoSerial->startPump();
+    //arduinoSerial->openLiquid1();
+    waitForDelay();
+    return;
+  }
+
+  QTimer::singleShot(10, this, SLOT(waitForPstatToInitializeAndStart()));
+}
+
+void MainWindow::waitForDelay()
+{
+  if (m_delayTimeOut) {
+    //autoModeTimerForLiquids->start(m_autoInterval);
+
+    ui->notificationLabel->setVisible(false);
+    ui->measurementStartButton->setDisabled(false);
+    ui->measurementStartButton->setText("Stop");
+
+    return;
+  }
+
+  QTimer::singleShot(10, this, SLOT(waitForDelay()));
+}
+
+void MainWindow::checkIfDoneAuto()
+{
+    static const int PollTimeout = 100;
+    if (QThreadPool::globalInstance()->activeThreadCount()){
+        ui->graphWindow->replot();
+        QTimer::singleShot(PollTimeout, this, SLOT(checkIfDoneAuto()));
+    }else {
+        ui->graphWindow->replot();
+        experimentRunning = false;
+        m_pstatInitialized = false;
+        m_delayTimeOut = false;
+        //arduinoSerial->stopPump();
+        //arduinoSerial->openLiquid1();
+
+        ui->measurementStartButton->setText("Start");
+    }
+}
+
+
+void MainWindow::on_measurementStartButton_clicked()
+{
+  experimentRunning = false;
+  if (QThreadPool::globalInstance()->activeThreadCount()) {
+    ui->autoControlsGroup->setDisabled(true);
+    qDebug() << "Waiting for background threads to finnish their work";
+    ui->notificationLabel->setText("Experiment is still active \nPlease Wait and do nothing.");
+    ui->notificationLabel->setVisible(true);
+    QThreadPool::globalInstance()->waitForDone();
+    ui->autoControlsGroup->setDisabled(false);
+  }
+  ui->notificationLabel->setVisible(false);
+
+#if 0
+  QLocale locale;
+  bool ok = false;
+  m_autoVoltage  = locale.toFloat(ui->automodeVoltageInput->text(), &ok);
+  m_autoTime     = locale.toFloat(ui->timeInput->text(), &ok);
+  m_autoInterval = locale.toFloat(ui->intervalInput->text(), &ok);
+
+
+  if (ok == false) {
+    QMessageBox errorMsgBox;
+    errorMsgBox.setText("The paramaters for esperiment are invalid. Check them please");
+    errorMsgBox.exec();
+    return;
+  }
+#endif
+
+  if (ui->measurementStartButton->text() == "Stop") {
+    ui->measurementStartButton->setText("Start");
+    return;
+  }
+
+  ui->automodeVoltageInput->setDisabled(true);
+  ui->timeInput->setDisabled(true);
+  ui->intervalInput->setDisabled(true);
+  ui->measurementStartButton->setDisabled(true);
+  ui->measurementStartButton->setText("Please Wait");
+  ui->notificationLabel->setText("Potentiostat is initializing.\nPlease Wait and do nothing.");
+  ui->notificationLabel->setVisible(true);
+  waitForPstatToInitializeAndStart();
+
+
+  //ExperimentSettings settings = {voltage, time/2.0f, voltage, time/2.0f, 0.01f, 100, delay};
+  ExperimentSettings settings = {0, 0, 0, 0, 0.01f, 100, 10};
+  startExperiment(settings);
+  checkIfDone();
+}

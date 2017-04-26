@@ -9,6 +9,19 @@ namespace Ui {
 class MainWindow;
 }
 
+struct ExperimentSettings {
+  float vInit;
+  float tInit;
+  float vFinal;
+  float tFinal;
+  float sampleRate;
+  unsigned int pollingInterval;
+  unsigned int delay;
+
+  float totalTime() { return tInit + tFinal;}
+};
+
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -38,8 +51,19 @@ private slots:
 
     void checkIfDone();
 
+    void on_measurementStartButton_clicked();
+
+    void autoChangeLiquid();
+
+    void waitForPstatToInitializeAndStart();
+
+    void waitForDelay();
+
+    void checkIfDoneAuto();
+
 private:
-    void startExperiment();
+    void startExperiment(ExperimentSettings settings);
+
 
 private:
     Ui::MainWindow *ui;
@@ -47,6 +71,15 @@ private:
     int comPortSelected = 0;
 
     volatile bool experimentRunning;
+    volatile bool m_pstatInitialized;
+    volatile bool m_delayTimeOut;
+    QTimer* autoModeTimerForLiquids;
+
+    unsigned int m_aemDotCount; // Active Experiment message animation
+    float m_autoVoltage;
+    float m_autoTime;
+    float m_autoInterval;
+
 };
 
 #endif // MAINWINDOW_H
