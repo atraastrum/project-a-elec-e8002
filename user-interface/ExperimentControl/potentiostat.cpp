@@ -121,7 +121,7 @@ namespace Gamry {
                         dataitem[8].intVal,
                         dataitem[9].intVal
                        });
-        qDebug() << dataitem[0].fltVal << ";" << dataitem[3].fltVal << ";" << dataitem[3].fltVal << "\n";
+        //qDebug() << dataitem[0].fltVal << ";" << dataitem[3].fltVal << ";" << dataitem[3].fltVal << "\n";
       }
 
       SafeArrayDestroy(psa);

@@ -310,7 +310,6 @@ void MainWindow::checkIfDone()
         addItemsToDataTable();
         QTimer::singleShot(PollTimeout, this, SLOT(checkIfDone()));
     }else {
-
         experimentRunning = false;
         m_pstatInitialized = false;
         m_delayTimeOut = false;
@@ -355,15 +354,14 @@ void MainWindow::startExperiment(ExperimentSettings settings)
     vec.push_back(&experimentRunning);
     vec.push_back(&m_pstatInitialized);
     vec.push_back(&m_delayTimeOut);
-    //volatile bool *array[3] = {&experimentRunning, &m_pstatInitialized, &m_delayTimeOut};
     QtConcurrent::run(runExperiment, vec, settings, ui->graphWindow, &allDataFromPstat);
 }
 
 void MainWindow::addItemsToDataTable()
 {
-    for (m_lastSizeBeforeAddToTable; m_lastSizeBeforeAddToTable < allDataFromPstat.size(); ++m_lastSizeBeforeAddToTable) {
+    ui->pstatDataTable->setRowCount(allDataFromPstat.size());
+    for (m_lastSizeBeforeAddToTable; m_lastSizeBeforeAddToTable < allDataFromPstat.size() ; ++m_lastSizeBeforeAddToTable) {
         Gamry::CookInformationPoint item = allDataFromPstat[m_lastSizeBeforeAddToTable];
-        ui->pstatDataTable->insertRow(m_lastSizeBeforeAddToTable);
         float data[7] = {item.Time, item.Im, item.Vf, item.Vu, item.Q , item.Vsig, item.Arch,};
         int c = 0;
         for(; c < 7; ++c) {
@@ -382,7 +380,7 @@ void MainWindow::addItemsToDataTable()
 
 void MainWindow::autoChangeLiquid()
 {
-  static bool setLiquid1 = true;
+  static bool setLiquid1 = false;
   if (setLiquid1) {
     arduinoSerial->openLiquid1();
     qDebug() << "LQ1";
@@ -411,7 +409,9 @@ void MainWindow::waitForPstatToInitializeAndStart()
 void MainWindow::waitForDelay()
 {
   if (m_delayTimeOut) {
-    autoModeTimerForLiquids->start(m_autoInterval);
+    qDebug() << "Starting timer";
+
+    autoModeTimerForLiquids->start(static_cast<int>(m_autoInterval * 1000.0f));
 
     ui->notificationLabel->setVisible(false);
     ui->measurementStartButton->setDisabled(false);

@@ -60,9 +60,11 @@ private slots:
 
     void waitForDelay();
 
+    void addItemsToDataTable();
+
 private:
     void startExperiment(ExperimentSettings settings);
-    void addItemsToDataTable();
+
 
 private:
     Ui::MainWindow *ui;
