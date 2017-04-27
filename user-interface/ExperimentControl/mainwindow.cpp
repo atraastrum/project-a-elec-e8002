@@ -475,3 +475,24 @@ void MainWindow::on_measurementStartButton_clicked()
   startExperiment(settings);
   checkIfDone();
 }
+
+void MainWindow::on_saveDataButton_clicked()
+{
+    ui->saveDataButton->setToolTip("Save data to CSV file");
+    QString fileName = QFileDialog::getSaveFileName(this,
+        tr("Save Data"), "",
+        tr("CSV (*.csv);;All Files (*)"));
+    if(fileName.isEmpty())
+        return;
+    else {
+        QFile file(fileName);
+        if(!file.open(QIODevice::WriteOnly)){
+            QMessageBox::information(this, tr("Unable to open file"),
+                                     file.errorString());
+            return;
+        }
+        QDataStream out(&file);
+        out.setVersion(QDataStream::Qt_5_8);
+        //out << data; //pstat data
+    }
+}
