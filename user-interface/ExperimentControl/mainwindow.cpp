@@ -479,20 +479,62 @@ void MainWindow::on_measurementStartButton_clicked()
 void MainWindow::on_saveDataButton_clicked()
 {
     ui->saveDataButton->setToolTip("Save data to CSV file");
-    QString fileName = QFileDialog::getSaveFileName(this,
-        tr("Save Data"), "",
-        tr("CSV (*.csv);;All Files (*)"));
-    if(fileName.isEmpty())
-        return;
-    else {
-        QFile file(fileName);
-        if(!file.open(QIODevice::WriteOnly)){
-            QMessageBox::information(this, tr("Unable to open file"),
-                                     file.errorString());
+    if(!allDataFromPstat.isEmpty())
+    {
+        QString fileName = QFileDialog::getSaveFileName(this,
+            tr("Save Data"), "",
+            tr("CSV (*.csv);;All Files (*)"));
+        if(fileName.isEmpty())
             return;
+        else {
+            QFile file(fileName);
+            if(!file.open(QIODevice::WriteOnly)){
+                QMessageBox::information(this, tr("Unable to open file"),
+                                         file.errorString());
+                return;
+            }
+            QTextStream out(&file);
+            out << "Time,"
+                << "Vf,"
+                << "Vu,"
+                << "Im,"
+                << "Q,"
+                << "Vsig,"
+                << "Arch,"
+                << "IERange,"
+                << "Overload,"
+                << "StopTest"
+                << "\n";
+            for(int i=0;i<allDataFromPstat.size();i++)
+            {
+                out << allDataFromPstat[i].Time
+                    << ","
+                    << allDataFromPstat[i].Vf
+                    << ","
+                    << allDataFromPstat[i].Vu
+                    << ","
+                    << allDataFromPstat[i].Im
+                    << ","
+                    << allDataFromPstat[i].Q
+                    << ","
+                    << allDataFromPstat[i].Vsig
+                    << ","
+                    << allDataFromPstat[i].Arch
+                    << ","
+                    << allDataFromPstat[i].IERange
+                    << ","
+                    << allDataFromPstat[i].Overload
+                    << ","
+                    << allDataFromPstat[i].StopTest
+                    << "\n";
+            }
         }
-        QDataStream out(&file);
-        out.setVersion(QDataStream::Qt_5_8);
-        //out << data; //pstat data
+    }
+    else
+    {
+        QMessageBox::information(
+                    this,
+                    tr("ExperimentControl"),
+                    tr("Data is empty") );
     }
 }
