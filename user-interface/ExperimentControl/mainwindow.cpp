@@ -318,7 +318,8 @@ void MainWindow::startExperiment(ExperimentSettings settings)
     m_pstatInitialized = false;
     m_delayTimeOut = false;
 
-    ui->pstatDataTable->clear();
+    ui->pstatDataTable->setRowCount(0);
+    //ui->pstatDataTable->clear();
     //ui->pstatDataTable->setHorizontalHeaderLabels(QStringList() << "Time" << "Im" <<"Vf" <<"Vu" <<"Q" <<"Vsig" <<"Arch" <<"IERange" << "Overload" << "StopTest" );
 
     allDataFromPstat.clear();
