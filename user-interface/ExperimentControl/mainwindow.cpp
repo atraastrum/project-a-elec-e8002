@@ -273,8 +273,28 @@ void MainWindow::on_controlPSTATButton_clicked()
     return;
   }
 
+  QLocale locale;
+  bool ok = false;
+  m_manualVinit  = locale.toFloat(ui->Vinitial->text(), &ok);
+  m_manualTinit  = locale.toFloat(ui->Tinitial->text(), &ok);
+  m_manualVfinal = locale.toFloat(ui->Vfinal->text(), &ok);
+  m_manualTfinal = locale.toFloat(ui->Tfinal->text(), &ok);
+
+
+#if 0
+  if (ok == false) {
+    QMessageBox errorMsgBox;
+    errorMsgBox.setText("The paramaters for experiment are invalid. Check them please.");
+    errorMsgBox.exec();
+    return;
+  }
+#endif
+
+
   ui->controlPSTATButton->setText("Stop Potentiostat");
-  ExperimentSettings settings = {0.5f, 50.0f, -0.1f, 50.0f, 0.01f, 100, 0};
+  ExperimentSettings settings = {m_manualVinit, m_manualTinit,
+                                 m_manualVfinal, m_manualTfinal,
+                                 0.01f, 100, 0};
   startExperiment(settings);
   checkIfDone();
 }
@@ -425,7 +445,7 @@ void MainWindow::on_measurementStartButton_clicked()
 #if 0
   if (ok == false) {
     QMessageBox errorMsgBox;
-    errorMsgBox.setText("The paramaters for esperiment are invalid. Check them please");
+    errorMsgBox.setText("The paramaters for experiment are invalid. Check them please.");
     errorMsgBox.exec();
     return;
   }
