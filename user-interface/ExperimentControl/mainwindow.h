@@ -81,6 +81,11 @@ private:
     float m_autoDelay;
     int m_lastSizeBeforeAddToTable;
 
+    float m_manualVinit;
+    float m_manualTinit;
+    float m_manualVfinal;
+    float m_manualTfinal;
+
     QVector<Gamry::CookInformationPoint> allDataFromPstat;
 
 };

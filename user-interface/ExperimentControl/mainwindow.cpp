@@ -23,7 +23,7 @@ void runExperiment(QVector<volatile bool*> array, ExperimentSettings settings, Q
     volatile bool* delayTimeOut = array[2];
 
     float totalTimeLeft = settings.totalTime();
-#if 0
+#if 1
     Gamry::Potentiostat pStat;
     QVector<double> buffer;
     QVector<double> bufferT;
@@ -52,14 +52,15 @@ void runExperiment(QVector<volatile bool*> array, ExperimentSettings settings, Q
           if (*experimentRunning == false)
               break;
 
-          std::vector<Gamry::CookInformationPoint> data = pStat.pullDataItems(100);
+          std::vector<Gamry::CookInformationPoint> pstatdata = pStat.pullDataItems(100);
 
-          for(int i = 0; i < data.size(); ++i)
+          for(int i = 0; i < pstatdata.size(); ++i)
           {
-            Gamry::CookInformationPoint& item = data[i];
+            Gamry::CookInformationPoint& item = pstatdata[i];
             graphWindow->graph(0)->addData(item.Time, item.Im);
             buffer.push_back(item.Im);
             bufferT.push_back(item.Time);
+            data->push_back(item);
             /*std::cout << item.Time << ';'
                   << item.Im << ';'
                   << item.Arch << ';'
@@ -96,7 +97,7 @@ void runExperiment(QVector<volatile bool*> array, ExperimentSettings settings, Q
         qDebug() << "Unable to initizlize Pstat. Probably it is not connected.";
     }
 #endif
-#if 1
+#if 0
   qDebug() << "Started thread";
   qDebug() << "Inializing\n";
   Sleep(2000);
@@ -140,8 +141,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->modeSelectionGroupBox->setDisabled(true);
 
     // For debugging
-    ui->manualControlsGroup->setEnabled(true);
-    ui->autoControlsGroup->setEnabled(true);
+    //ui->manualControlsGroup->setEnabled(true);
+    //ui->autoControlsGroup->setEnabled(true);
 
     connect(ui->actionSetup, SIGNAL(triggered()), this, SLOT(Setup()));
 
@@ -281,7 +282,7 @@ void MainWindow::on_controlPSTATButton_clicked()
   m_manualTfinal = locale.toFloat(ui->Tfinal->text(), &ok);
 
 
-#if 0
+#if 1
   if (ok == false) {
     QMessageBox errorMsgBox;
     errorMsgBox.setText("The paramaters for experiment are invalid. Check them please.");
@@ -290,7 +291,7 @@ void MainWindow::on_controlPSTATButton_clicked()
   }
 #endif
 
-
+  ui->ManualSettingBox->setEnabled(false);
   ui->controlPSTATButton->setText("Stop Potentiostat");
   ExperimentSettings settings = {m_manualVinit, m_manualTinit,
                                  m_manualVfinal, m_manualTfinal,
@@ -319,9 +320,11 @@ void MainWindow::checkIfDone()
 
         if (ui->modeSelection->currentText() == "Manual"){
             ui->controlPSTATButton->setText("Start Potentiostat");
+            ui->ManualSettingBox->setEnabled(true);
         }else if (ui->modeSelection->currentText() == "Auto"){
-            //arduinoSerial->stopPump();
-            //arduinoSerial->openLiquid1();
+            arduinoSerial->stopPump();
+            arduinoSerial->openLiquid1();
+            autoModeTimerForLiquids->stop();
 
             ui->automodeVoltageInput->setDisabled(false);
             ui->timeInput->setDisabled(false);
@@ -396,8 +399,8 @@ void MainWindow::waitForPstatToInitializeAndStart()
 
   if (m_pstatInitialized) {
     ui->notificationLabel->setText("Running the pump for " + ui->automodeDelayInput->text() + " seconds\nbefore measuring current");
-    //arduinoSerial->startPump();
-    //arduinoSerial->openLiquid1();
+    arduinoSerial->startPump();
+    arduinoSerial->openLiquid1();
     waitForDelay();
     return;
   }
@@ -408,7 +411,7 @@ void MainWindow::waitForPstatToInitializeAndStart()
 void MainWindow::waitForDelay()
 {
   if (m_delayTimeOut) {
-    //autoModeTimerForLiquids->start(m_autoInterval);
+    autoModeTimerForLiquids->start(m_autoInterval);
 
     ui->notificationLabel->setVisible(false);
     ui->measurementStartButton->setDisabled(false);
@@ -442,7 +445,7 @@ void MainWindow::on_measurementStartButton_clicked()
   m_autoDelay = locale.toFloat(ui->automodeDelayInput->text(), &ok);
 
 
-#if 0
+#if 1
   if (ok == false) {
     QMessageBox errorMsgBox;
     errorMsgBox.setText("The paramaters for experiment are invalid. Check them please.");
