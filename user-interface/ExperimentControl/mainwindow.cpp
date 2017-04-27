@@ -140,8 +140,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->modeSelectionGroupBox->setDisabled(true);
 
     // For debugging
-    //ui->manualControlsGroup->setEnabled(true);
-    //ui->autoControlsGroup->setEnabled(true);
+    ui->manualControlsGroup->setEnabled(true);
+    ui->autoControlsGroup->setEnabled(true);
 
     connect(ui->actionSetup, SIGNAL(triggered()), this, SLOT(Setup()));
 
@@ -289,6 +289,7 @@ void MainWindow::checkIfDone()
         addItemsToDataTable();
         QTimer::singleShot(PollTimeout, this, SLOT(checkIfDone()));
     }else {
+
         experimentRunning = false;
         m_pstatInitialized = false;
         m_delayTimeOut = false;
@@ -296,7 +297,18 @@ void MainWindow::checkIfDone()
         ui->graphWindow->replot();
         addItemsToDataTable();
 
-        ui->controlPSTATButton->setText("Start Potentiostat");
+        if (ui->modeSelection->currentText() == "Manual"){
+            ui->controlPSTATButton->setText("Start Potentiostat");
+        }else if (ui->modeSelection->currentText() == "Auto"){
+            //arduinoSerial->stopPump();
+            //arduinoSerial->openLiquid1();
+
+            ui->automodeVoltageInput->setDisabled(false);
+            ui->timeInput->setDisabled(false);
+            ui->intervalInput->setDisabled(false);
+            ui->automodeDelayInput->setDisabled(false);
+            ui->measurementStartButton->setText("Start");
+        }
     }
 }
 
@@ -305,6 +317,9 @@ void MainWindow::startExperiment(ExperimentSettings settings)
     experimentRunning = true;
     m_pstatInitialized = false;
     m_delayTimeOut = false;
+
+    ui->pstatDataTable->clear();
+    //ui->pstatDataTable->setHorizontalHeaderLabels(QStringList() << "Time" << "Im" <<"Vf" <<"Vu" <<"Q" <<"Vsig" <<"Arch" <<"IERange" << "Overload" << "StopTest" );
 
     allDataFromPstat.clear();
     m_lastSizeBeforeAddToTable = 0;
@@ -384,33 +399,6 @@ void MainWindow::waitForDelay()
   QTimer::singleShot(10, this, SLOT(waitForDelay()));
 }
 
-void MainWindow::checkIfDoneAuto()
-{
-    static const int PollTimeout = 100;
-    if (QThreadPool::globalInstance()->activeThreadCount()){
-        ui->graphWindow->replot();
-        addItemsToDataTable();
-        QTimer::singleShot(PollTimeout, this, SLOT(checkIfDoneAuto()));
-    }else {
-        experimentRunning = false;
-        m_pstatInitialized = false;
-        m_delayTimeOut = false;
-
-        ui->graphWindow->replot();
-        addItemsToDataTable();
-
-        //arduinoSerial->stopPump();
-        //arduinoSerial->openLiquid1();
-
-        ui->automodeVoltageInput->setDisabled(false);
-        ui->timeInput->setDisabled(false);
-        ui->intervalInput->setDisabled(false);
-        ui->automodeDelayInput->setDisabled(false);
-        ui->measurementStartButton->setText("Start");
-    }
-}
-
-
 void MainWindow::on_measurementStartButton_clicked()
 {
   experimentRunning = false;
@@ -461,5 +449,5 @@ void MainWindow::on_measurementStartButton_clicked()
   ExperimentSettings settings = {m_autoVoltage, m_autoTime/2.0f, m_autoVoltage, m_autoTime/2.0f, 0.01f, 100, m_autoDelay};
   //ExperimentSettings settings = {0, 0, 0, 0, 0.01f, 100, 10};
   startExperiment(settings);
-  checkIfDoneAuto();
+  checkIfDone();
 }

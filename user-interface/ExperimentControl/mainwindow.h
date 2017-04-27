@@ -60,8 +60,6 @@ private slots:
 
     void waitForDelay();
 
-    void checkIfDoneAuto();
-
 private:
     void startExperiment(ExperimentSettings settings);
     void addItemsToDataTable();
