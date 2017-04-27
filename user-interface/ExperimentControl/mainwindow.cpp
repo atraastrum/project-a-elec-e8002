@@ -316,6 +316,8 @@ void MainWindow::checkIfDone()
 
         ui->graphWindow->replot();
         addItemsToDataTable();
+        ui->saveDataButton->setDisabled(false);
+        ui->comPortSelection->setDisabled(false);
 
         if (ui->modeSelection->currentText() == "Manual"){
             ui->controlPSTATButton->setText("Start Potentiostat");
@@ -336,6 +338,8 @@ void MainWindow::checkIfDone()
 
 void MainWindow::startExperiment(ExperimentSettings settings)
 {
+    ui->saveDataButton->setDisabled(true);
+    ui->comPortSelection->setDisabled(true);
     experimentRunning = true;
     m_pstatInitialized = false;
     m_delayTimeOut = false;

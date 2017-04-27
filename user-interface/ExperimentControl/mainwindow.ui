@@ -303,7 +303,7 @@ QPushButton:pressed {
             <item row="0" column="0">
              <widget class="QLineEdit" name="intervalInput">
               <property name="placeholderText">
-               <string>Milliseconds</string>
+               <string>Seconds</string>
               </property>
               <property name="clearButtonEnabled">
                <bool>true</bool>
