@@ -15,7 +15,7 @@
 
 #include "../../arduinoSerial/ArduinoSerial.h"
 
-#define DEV_TEST_MODE
+//#define DEV_TEST_MODE
 
 void runExperiment(QVector<volatile bool*> array, ExperimentSettings settings, QCustomPlot* graphWindow, QVector<Gamry::CookInformationPoint>* data)
 {
