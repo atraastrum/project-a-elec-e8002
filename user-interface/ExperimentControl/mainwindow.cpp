@@ -15,6 +15,7 @@
 
 #include "../../arduinoSerial/ArduinoSerial.h"
 
+//#define DEV_TEST_MODE
 
 void runExperiment(QVector<volatile bool*> array, ExperimentSettings settings, QCustomPlot* graphWindow, QVector<Gamry::CookInformationPoint>* data)
 {
@@ -23,7 +24,7 @@ void runExperiment(QVector<volatile bool*> array, ExperimentSettings settings, Q
     volatile bool* delayTimeOut = array[2];
 
     float totalTimeLeft = settings.totalTime();
-#if 1
+#ifndef DEV_TEST_MODE
     Gamry::Potentiostat pStat;
     QVector<double> buffer;
     QVector<double> bufferT;
@@ -96,8 +97,7 @@ void runExperiment(QVector<volatile bool*> array, ExperimentSettings settings, Q
     } catch (...){
         qDebug() << "Unable to initizlize Pstat. Probably it is not connected.";
     }
-#endif
-#if 0
+#else
   qDebug() << "Started thread";
   qDebug() << "Inializing\n";
   Sleep(2000);
@@ -140,9 +140,7 @@ MainWindow::MainWindow(QWidget *parent) :
     arduinoSerial= new ArduinoSerial;
     ui->modeSelectionGroupBox->setDisabled(true);
 
-    // For debugging
-    //ui->manualControlsGroup->setEnabled(true);
-    //ui->autoControlsGroup->setEnabled(true);
+
 
     connect(ui->actionSetup, SIGNAL(triggered()), this, SLOT(Setup()));
 
@@ -165,6 +163,12 @@ MainWindow::MainWindow(QWidget *parent) :
     m_lastSizeBeforeAddToTable = 0;
 
     ui->pstatDataTable->setHorizontalHeaderLabels(QStringList() << "Time" << "Im" <<"Vf" <<"Vu" <<"Q" <<"Vsig" <<"Arch" <<"IERange" << "Overload" << "StopTest" );
+
+#ifdef DEV_TEST_MODE
+    ui->manualControlsGroup->setEnabled(true);
+    ui->autoControlsGroup->setEnabled(true);
+    ui->notificationLabel->setVisible(true);
+#endif
 }
 
 MainWindow::~MainWindow()

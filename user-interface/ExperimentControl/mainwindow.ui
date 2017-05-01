@@ -137,27 +137,23 @@ QPushButton:pressed {
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
           <widget class="QCustomPlot" name="graphWindow" native="true">
-           <widget class="QLabel" name="notificationLabel">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>20</y>
-              <width>591</width>
-              <height>391</height>
-             </rect>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>22</pointsize>
-             </font>
-            </property>
-            <property name="text">
-             <string>TextLabel</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="QLabel" name="notificationLabel">
+              <property name="font">
+               <font>
+                <pointsize>22</pointsize>
+               </font>
+              </property>
+              <property name="text">
+               <string>TextLabel</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </widget>
          </item>
         </layout>
@@ -601,7 +597,7 @@ QPushButton:pressed {
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>26</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMenu_Setup">
