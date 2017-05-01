@@ -15,7 +15,7 @@
 
 #include "../../arduinoSerial/ArduinoSerial.h"
 
-//#define DEV_TEST_MODE
+#define DEV_TEST_MODE
 
 void runExperiment(QVector<volatile bool*> array, ExperimentSettings settings, QCustomPlot* graphWindow, QVector<Gamry::CookInformationPoint>* data)
 {
@@ -134,7 +134,9 @@ void runExperiment(QVector<volatile bool*> array, ExperimentSettings settings, Q
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    autoModeTimerForLiquids(new QTimer{this})
+    autoModeTimerForLiquids(new QTimer{this}),
+    m_pstatSettingsSampleRate{0.01f},
+    m_pstatSettingsPollingInterval{100}
 {
     ui->setupUi(this);
     arduinoSerial= new ArduinoSerial;
@@ -143,6 +145,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 
     connect(ui->actionSetup, SIGNAL(triggered()), this, SLOT(Setup()));
+    connect(ui->actionExit, SIGNAL(triggered()), this, SLOT(close()));
 
     // Adding Validators to Auto Mode LineEdit Objects
     auto intervalInputValidator = new QIntValidator();
@@ -260,11 +263,17 @@ void MainWindow::on_liquid2Control_clicked()
 
 void MainWindow::Setup()
 {
-       Dialog dialog;
+       Dialog dialog(0,m_pstatSettingsSampleRate, m_pstatSettingsPollingInterval);
        dialog.setModal(true);
-       dialog.exec();
+       if (dialog.exec()) {
+           m_pstatSettingsSampleRate =  dialog.sampleRate();
+           m_pstatSettingsPollingInterval = dialog.pollingInterval();
+#ifdef DEV_TEST_MODE
+           qDebug() << "Dialog Sample Rate:      " << m_pstatSettingsSampleRate;
+           qDebug() << "Dialog Polling Interval: " << m_pstatSettingsPollingInterval;
+#endif
+       }
 }
-
 
 void MainWindow::on_controlPSTATButton_clicked()
 {
@@ -299,7 +308,7 @@ void MainWindow::on_controlPSTATButton_clicked()
   ui->controlPSTATButton->setText("Stop Potentiostat");
   ExperimentSettings settings = {m_manualVinit, m_manualTinit,
                                  m_manualVfinal, m_manualTfinal,
-                                 0.01f, 100, 0};
+                                 m_pstatSettingsSampleRate, m_pstatSettingsPollingInterval, 0};
   startExperiment(settings);
   checkIfDone();
 }
@@ -478,8 +487,7 @@ void MainWindow::on_measurementStartButton_clicked()
   waitForPstatToInitializeAndStart();
 
 
-  ExperimentSettings settings = {m_autoVoltage, m_autoTime/2.0f, m_autoVoltage, m_autoTime/2.0f, 0.01f, 100, m_autoDelay};
-  //ExperimentSettings settings = {0, 0, 0, 0, 0.01f, 100, 10};
+  ExperimentSettings settings = {m_autoVoltage, m_autoTime/2.0f, m_autoVoltage, m_autoTime/2.0f, m_pstatSettingsSampleRate, m_pstatSettingsPollingInterval, m_autoDelay};
   startExperiment(settings);
   checkIfDone();
 }

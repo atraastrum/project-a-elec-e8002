@@ -35,6 +35,9 @@ protected:
     void closeEvent(QCloseEvent* event);
 
 private slots:
+    // Creates Setup Dialog when Menu item is triggered
+    void Setup();
+
     void on_startPumpButton_clicked();
 
     void on_comPortSelect_valueChanged(int arg1);
@@ -46,7 +49,6 @@ private slots:
     void on_liquid1Control_clicked();
 
     void on_liquid2Control_clicked();
-    void Setup();
 
     void on_controlPSTATButton_clicked();
 
@@ -91,6 +93,9 @@ private:
     float m_manualTinit;
     float m_manualVfinal;
     float m_manualTfinal;
+
+    float m_pstatSettingsSampleRate;
+    unsigned int m_pstatSettingsPollingInterval;
 
     QVector<Gamry::CookInformationPoint> allDataFromPstat;
 
