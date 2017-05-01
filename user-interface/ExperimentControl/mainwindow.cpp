@@ -155,6 +155,15 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->intervalInput->setValidator(intervalInputValidator);
     ui->timeInput->setValidator(intervalInputValidator);
     ui->automodeVoltageInput->setValidator(voltageInputValidator);
+    ui->automodeDelayInput->setValidator(intervalInputValidator);
+
+    ui->Vinitial->setValidator(voltageInputValidator);
+    ui->Vfinal->setValidator(voltageInputValidator);
+
+    auto manualTimeValidator = new QDoubleValidator();
+    manualTimeValidator->setBottom(1);
+    ui->Tinitial->setValidator(manualTimeValidator);
+    ui->Tfinal->setValidator(manualTimeValidator);
 
     //For auto control to change liquids
     QObject::connect(autoModeTimerForLiquids, SIGNAL(timeout()), this, SLOT(autoChangeLiquid()));
@@ -290,19 +299,33 @@ void MainWindow::on_controlPSTATButton_clicked()
   QLocale locale;
   bool ok = false;
   m_manualVinit  = locale.toFloat(ui->Vinitial->text(), &ok);
-  m_manualTinit  = locale.toFloat(ui->Tinitial->text(), &ok);
-  m_manualVfinal = locale.toFloat(ui->Vfinal->text(), &ok);
-  m_manualTfinal = locale.toFloat(ui->Tfinal->text(), &ok);
-
-
-#if 1
   if (ok == false) {
     QMessageBox errorMsgBox;
     errorMsgBox.setText("The paramaters for experiment are invalid. Check them please.");
     errorMsgBox.exec();
     return;
   }
-#endif
+  m_manualTinit  = locale.toFloat(ui->Tinitial->text(), &ok);
+  if (ok == false) {
+    QMessageBox errorMsgBox;
+    errorMsgBox.setText("The paramaters for experiment are invalid. Check them please.");
+    errorMsgBox.exec();
+    return;
+  }
+  m_manualVfinal = locale.toFloat(ui->Vfinal->text(), &ok);
+  if (ok == false) {
+    QMessageBox errorMsgBox;
+    errorMsgBox.setText("The paramaters for experiment are invalid. Check them please.");
+    errorMsgBox.exec();
+    return;
+  }
+  m_manualTfinal = locale.toFloat(ui->Tfinal->text(), &ok);
+  if (ok == false) {
+    QMessageBox errorMsgBox;
+    errorMsgBox.setText("The paramaters for experiment are invalid. Check them please.");
+    errorMsgBox.exec();
+    return;
+  }
 
   ui->ManualSettingBox->setEnabled(false);
   ui->controlPSTATButton->setText("Stop Potentiostat");
@@ -457,19 +480,33 @@ void MainWindow::on_measurementStartButton_clicked()
   QLocale locale;
   bool ok = false;
   m_autoVoltage  = locale.toFloat(ui->automodeVoltageInput->text(), &ok);
-  m_autoTime     = locale.toFloat(ui->timeInput->text(), &ok);
-  m_autoInterval = locale.toFloat(ui->intervalInput->text(), &ok);
-  m_autoDelay = locale.toFloat(ui->automodeDelayInput->text(), &ok);
-
-
-#if 1
   if (ok == false) {
     QMessageBox errorMsgBox;
     errorMsgBox.setText("The paramaters for experiment are invalid. Check them please.");
     errorMsgBox.exec();
     return;
   }
-#endif
+  m_autoTime     = locale.toFloat(ui->timeInput->text(), &ok);
+  if (ok == false) {
+    QMessageBox errorMsgBox;
+    errorMsgBox.setText("The paramaters for experiment are invalid. Check them please.");
+    errorMsgBox.exec();
+    return;
+  }
+  m_autoInterval = locale.toFloat(ui->intervalInput->text(), &ok);
+  if (ok == false) {
+    QMessageBox errorMsgBox;
+    errorMsgBox.setText("The paramaters for experiment are invalid. Check them please.");
+    errorMsgBox.exec();
+    return;
+  }
+  m_autoDelay = locale.toFloat(ui->automodeDelayInput->text(), &ok);
+  if (ok == false) {
+    QMessageBox errorMsgBox;
+    errorMsgBox.setText("The paramaters for experiment are invalid. Check them please.");
+    errorMsgBox.exec();
+    return;
+  }
 
   if (ui->measurementStartButton->text() == "Stop") {
     ui->measurementStartButton->setText("Start");
