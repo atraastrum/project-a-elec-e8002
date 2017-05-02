@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Experiment Control for TRES</string>
   </property>
   <property name="styleSheet">
    <string notr="true">QPushButton {
@@ -601,7 +601,7 @@ QPushButton:pressed {
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMenu_Setup">
