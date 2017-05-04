@@ -87,7 +87,11 @@ private:
     float m_autoTime;
     float m_autoInterval;
     float m_autoDelay;
+    float m_autoTimeLowerLimit;
+    float m_autoIntervalLowerLimit;
+    bool setLiquid1;
     int m_lastSizeBeforeAddToTable;
+
 
     float m_manualVinit;
     float m_manualTinit;

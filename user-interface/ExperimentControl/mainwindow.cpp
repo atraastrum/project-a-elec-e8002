@@ -181,6 +181,9 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->autoControlsGroup->setEnabled(true);
     ui->notificationLabel->setVisible(true);
 #endif
+    m_autoTimeLowerLimit = 6.0f;
+    m_autoIntervalLowerLimit = 2.0f;
+    setLiquid1 = false;
 }
 
 MainWindow::~MainWindow()
@@ -420,13 +423,16 @@ void MainWindow::addItemsToDataTable()
 
 void MainWindow::autoChangeLiquid()
 {
-  static bool setLiquid1 = false;
   if (setLiquid1) {
+#ifndef DEV_TEST_MODE
     arduinoSerial->openLiquid1();
+#endif
     qDebug() << "LQ1";
     setLiquid1 = false;
   } else {
+#ifndef DEV_TEST_MODE
     arduinoSerial->openLiquid2();
+#endif
     qDebug() << "LQ2";
     setLiquid1 = true;
   }
@@ -437,8 +443,10 @@ void MainWindow::waitForPstatToInitializeAndStart()
 
   if (m_pstatInitialized) {
     ui->notificationLabel->setText("Running the pump for " + ui->automodeDelayInput->text() + " seconds\nbefore measuring current");
+#ifndef DEV_TEST_MODE
     arduinoSerial->startPump();
     arduinoSerial->openLiquid1();
+#endif
     waitForDelay();
     return;
   }
@@ -451,6 +459,7 @@ void MainWindow::waitForDelay()
   if (m_delayTimeOut) {
     qDebug() << "Starting timer";
 
+    setLiquid1 = false;
     autoModeTimerForLiquids->start(static_cast<int>(m_autoInterval * 1000.0f));
 
     ui->notificationLabel->setVisible(false);
@@ -493,17 +502,33 @@ void MainWindow::on_measurementStartButton_clicked()
     errorMsgBox.exec();
     return;
   }
+  if (m_autoTime < m_autoTimeLowerLimit) {
+    QMessageBox errorMsgBox;
+    QString msg{"Time must greater or equal to %1 seconds"};
+    msg = msg.arg(m_autoTimeLowerLimit);
+    errorMsgBox.setText(msg);
+    errorMsgBox.exec();
+    return;
+  }
   m_autoInterval = locale.toFloat(ui->intervalInput->text(), &ok);
   if (ok == false) {
     QMessageBox errorMsgBox;
-    errorMsgBox.setText("The paramaters for experiment are invalid. Check them please.");
+    errorMsgBox.setText("Interval is not valid. Check it please.");
+    errorMsgBox.exec();
+    return;
+  }
+  if (m_autoInterval < m_autoIntervalLowerLimit) {
+    QMessageBox errorMsgBox;
+    QString msg{"Interval must be at least %1 seconds"};
+    msg = msg.arg(m_autoIntervalLowerLimit);
+    errorMsgBox.setText(msg);
     errorMsgBox.exec();
     return;
   }
   m_autoDelay = locale.toFloat(ui->automodeDelayInput->text(), &ok);
   if (ok == false) {
     QMessageBox errorMsgBox;
-    errorMsgBox.setText("The paramaters for experiment are invalid. Check them please.");
+    errorMsgBox.setText("Delay is not valid. Check it please.");
     errorMsgBox.exec();
     return;
   }
