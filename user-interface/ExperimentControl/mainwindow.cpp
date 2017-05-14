@@ -12,11 +12,43 @@
 #include "qcustomplot.h"
 #include "potentiostat.hpp"
 #include <iostream>
+#include <fstream>
 
 #include "../../arduinoSerial/ArduinoSerial.h"
 
-//#define DEV_TEST_MODE
+#define DEV_TEST_MODE
+#define NO_ADRUINO
 
+std::ifstream& operator>>(std::ifstream& in, Gamry::CookInformationPoint& item) {
+#if 0
+  in >> item.Time >> ','
+        >> item.Vf >> ','
+        >> item.Vu >> ','
+        >> item.Im >> ','
+        >> item.Q >> ','
+        >> item.Vsig >> ','
+        >> item.Arch >> ','
+        >> item.IERange >> ','
+        >> item.Overload >> ','
+        >> item.StopTest ;
+#endif
+  float Time, Vf, Vu, Im, Q, Vsig, Arch;
+  int IERange, Overload, StopTest;
+  char c;
+
+  in >> Time >> c >> Vf >> c >> Vu >> c >> Im >> c >> Q >> c >> Vsig >> c >> Arch >> c >> IERange>> c >> Overload >> c >> StopTest ;
+  item.Time=Time;
+  item.Vf=Vf;
+  item.Vu=Vu;
+  item.Im=Im;
+  item.Q=Q;
+  item.Vsig=Vsig;
+  item.Arch=Arch;
+  item.IERange=IERange;
+  item.Overload=Overload;
+  item.StopTest=StopTest;
+  return in;
+}
 void runExperiment(QVector<volatile bool*> array, ExperimentSettings settings, QCustomPlot* graphWindow, QVector<Gamry::CookInformationPoint>* data)
 {
     volatile bool* experimentRunning = array[0];
@@ -24,6 +56,8 @@ void runExperiment(QVector<volatile bool*> array, ExperimentSettings settings, Q
     volatile bool* delayTimeOut = array[2];
 
     float totalTimeLeft = settings.totalTime();
+    QVector<double> buffer;
+    QVector<double> bufferT;
 #ifndef DEV_TEST_MODE
     Gamry::Potentiostat pStat;
     QVector<double> buffer;
@@ -42,7 +76,6 @@ void runExperiment(QVector<volatile bool*> array, ExperimentSettings settings, Q
         *delayTimeOut = true;
 
         pStat.setStepSignal(settings.vInit, settings.tInit, settings.vFinal, settings.tFinal, settings.sampleRate);
-        //pStat.setStepSignal(0.5f, 5.0f, -0.1f, 5.0f, 0.01f);
         pStat.start();
 
 
@@ -98,7 +131,67 @@ void runExperiment(QVector<volatile bool*> array, ExperimentSettings settings, Q
         qDebug() << "Unable to initizlize Pstat. Probably it is not connected.";
     }
 #else
-  qDebug() << "Started thread";
+  std::ifstream datafile;
+  datafile.open("data.csv", std::ios_base::in);
+  if (datafile){
+    std::string headers;
+    std::getline(datafile,headers);
+
+    *pstatInitialized = true;
+
+    if (settings.delay > 0) {
+      Sleep(static_cast<unsigned int>(settings.delay * 1000.0f));
+    }
+    *delayTimeOut = true;
+
+    do {
+
+      Sleep(settings.pollingInterval);
+
+      if (*experimentRunning == false)
+          break;
+
+
+      std::vector<Gamry::CookInformationPoint> pstatdata;
+      for (size_t cc = 0; cc < 100 && datafile; ++cc) {
+        Gamry::CookInformationPoint item;
+        datafile >> item;
+        pstatdata.push_back(item);
+      }
+
+      for(int i = 0; i < pstatdata.size(); ++i)
+      {
+        Gamry::CookInformationPoint& item = pstatdata[i];
+        graphWindow->graph(0)->addData(item.Time, item.Im);
+        buffer.push_back(item.Im);
+        bufferT.push_back(item.Time);
+        data->push_back(item);
+      }
+
+      if (buffer.size()) {
+        QVector<double> diff(buffer.size());
+        double mean = std::accumulate( buffer.begin(), buffer.end(), 0.0)/buffer.size();
+        std::transform(buffer.begin(), buffer.end(), diff.begin(), [mean](double y) { return y - mean; });
+        double sq_sum = std::inner_product(diff.begin(), diff.end(), diff.begin(), 0.0);
+        double stdev = std::sqrt(sq_sum / buffer.size());
+
+        graphWindow->yAxis->setRange(mean - 2.0 * stdev, mean + 2.0 * stdev);
+      }
+
+      if (bufferT.size() && bufferT.last() >= totalTimeLeft)
+        break;
+    }while(true);
+
+
+
+    datafile.close();
+    *pstatInitialized = false;
+    *delayTimeOut = false;
+  } else {
+    std::cerr << "Unable to open datafile. Will not start pstat simulation\n";
+  }
+
+  /*qDebug() << "Started thread";
   qDebug() << "Inializing\n";
   Sleep(2000);
   *pstatInitialized = true;
@@ -128,6 +221,7 @@ void runExperiment(QVector<volatile bool*> array, ExperimentSettings settings, Q
   *pstatInitialized = false;
   *delayTimeOut = false;
   qDebug() << "Stoped thread";
+  */
 #endif
 }
 
@@ -184,6 +278,13 @@ MainWindow::MainWindow(QWidget *parent) :
     m_autoTimeLowerLimit = 6.0f;
     m_autoIntervalLowerLimit = 2.0f;
     setLiquid1 = false;
+
+#ifdef DEV_TEST_MODE
+  ui->Vinitial->setText("0,5");
+  ui->Vfinal->setText("0,5");
+  ui->Tinitial->setText("85");
+  ui->Tfinal->setText("85");
+#endif
 }
 
 MainWindow::~MainWindow()
@@ -259,18 +360,22 @@ void MainWindow::on_modeSelection_activated(const QString &arg1)
 
 void MainWindow::on_liquid1Control_clicked()
 {
+#ifndef NO_ADRUINO
     if(arduinoSerial->openLiquid1())
     {
         qDebug() << "Liquid 1 selected";
     }
+#endif
 }
 
 void MainWindow::on_liquid2Control_clicked()
 {
+#ifndef NO_ADRUINO
     if(arduinoSerial->openLiquid2())
     {
         qDebug() << "Liquid 2 selected";
     }
+#endif
 }
 
 void MainWindow::Setup()
@@ -362,8 +467,10 @@ void MainWindow::checkIfDone()
             ui->controlPSTATButton->setText("Start Potentiostat");
             ui->ManualSettingBox->setEnabled(true);
         }else if (ui->modeSelection->currentText() == "Auto"){
+#ifndef NO_ADRUINO
             arduinoSerial->stopPump();
             arduinoSerial->openLiquid1();
+#endif
             autoModeTimerForLiquids->stop();
 
             ui->automodeVoltageInput->setDisabled(false);
@@ -424,13 +531,13 @@ void MainWindow::addItemsToDataTable()
 void MainWindow::autoChangeLiquid()
 {
   if (setLiquid1) {
-#ifndef DEV_TEST_MODE
+#ifndef NO_ADRUINO
     arduinoSerial->openLiquid1();
 #endif
     qDebug() << "LQ1";
     setLiquid1 = false;
   } else {
-#ifndef DEV_TEST_MODE
+#ifndef NO_ADRUINO
     arduinoSerial->openLiquid2();
 #endif
     qDebug() << "LQ2";
@@ -443,7 +550,7 @@ void MainWindow::waitForPstatToInitializeAndStart()
 
   if (m_pstatInitialized) {
     ui->notificationLabel->setText("Running the pump for " + ui->automodeDelayInput->text() + " seconds\nbefore measuring current");
-#ifndef DEV_TEST_MODE
+#ifndef NO_ADRUINO
     arduinoSerial->startPump();
     arduinoSerial->openLiquid1();
 #endif
